@@ -8,9 +8,9 @@ public class CocktailDTO {
     private String instructions;
     private String imageUrl;
     private String glassType;
-    private String spiritType;
-    private List<CocktailIngredientDTO> ingredients; // Change here
-    private String createdBy; // New field for creator's name
+    private List<String> spiritTypes; // Change here
+    private List<CocktailIngredientDTO> ingredients;
+    private String createdBy;
 
     // Getters and Setters
     public Long getId() {
@@ -53,12 +53,12 @@ public class CocktailDTO {
         this.glassType = glassType;
     }
 
-    public String getSpiritType() {
-        return spiritType;
+    public List<String> getSpiritTypes() {
+        return spiritTypes;
     }
 
-    public void setSpiritType(String spiritType) {
-        this.spiritType = spiritType;
+    public void setSpiritTypes(List<String> spiritTypes) {
+        this.spiritTypes = spiritTypes;
     }
 
     public List<CocktailIngredientDTO> getIngredients() {
@@ -69,11 +69,11 @@ public class CocktailDTO {
         this.ingredients = ingredients;
     }
 
-    public String getCreatedBy() { // Getter for createdBy
+    public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) { // Setter for createdBy
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 }
