@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "Cocktails")
+@Table(name = "cocktails")
 public class Cocktail {
 
     @Id
@@ -31,6 +31,10 @@ public class Cocktail {
 
     @OneToMany(mappedBy = "cocktail", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CocktailIngredient> cocktailIngredients;
+
+    // New column for creator
+    @Column(name = "created_by", nullable = false, length = 100)
+    private String createdBy;
 
     public Long getId() {
         return id;
@@ -88,4 +92,11 @@ public class Cocktail {
         this.cocktailIngredients = cocktailIngredients;
     }
 
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
 }

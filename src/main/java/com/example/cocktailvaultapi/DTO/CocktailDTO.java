@@ -10,6 +10,7 @@ public class CocktailDTO {
     private String glassType;
     private String spiritType;
     private List<CocktailIngredientDTO> ingredients; // Change here
+    private String createdBy; // New field for creator's name
 
     // Getters and Setters
     public Long getId() {
@@ -66,5 +67,13 @@ public class CocktailDTO {
 
     public void setIngredients(List<CocktailIngredientDTO> ingredients) {
         this.ingredients = ingredients;
+    }
+
+    public String getCreatedBy() { // Getter for createdBy
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) { // Setter for createdBy
+        this.createdBy = createdBy;
     }
 }

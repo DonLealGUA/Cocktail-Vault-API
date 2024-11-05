@@ -84,11 +84,9 @@ public class CocktailController {
 
         dto.setIngredients(ingredientDTOs);
 
+        // Set the createdBy field
+        dto.setCreatedBy(cocktail.getCreatedBy()); // Assuming getCreatedBy() returns the creator's name
+
         return dto;
     }
-
-
-
-
-
 }
