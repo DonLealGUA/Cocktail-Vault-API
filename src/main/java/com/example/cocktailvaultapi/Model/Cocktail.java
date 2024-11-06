@@ -35,6 +35,9 @@ public class Cocktail {
     @Column(name = "created_by", nullable = false, length = 100)
     private String createdBy;
 
+    @Column(name = "created_by_link", nullable = true, length = 100)
+    private String createdByLink;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_date", nullable = false, updatable = false)
     private Date createdDate;
@@ -126,5 +129,13 @@ public class Cocktail {
 
     public void setSpiritBrand(String spiritBrand) {
         this.spiritBrand = spiritBrand;
+    }
+
+    public String getCreatedByLink() {
+        return createdByLink;
+    }
+
+    public void setCreatedByLink(String createdByLink) {
+        this.createdByLink = createdByLink;
     }
 }

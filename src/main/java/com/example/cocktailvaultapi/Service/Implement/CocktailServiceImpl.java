@@ -2,9 +2,13 @@ package com.example.cocktailvaultapi.Service.Implement;
 
 import com.example.cocktailvaultapi.DTO.CocktailDTO;
 import com.example.cocktailvaultapi.DTO.CocktailIngredientDTO;
+import com.example.cocktailvaultapi.DTO.PaginatedResponseDTO;
 import com.example.cocktailvaultapi.Model.Cocktail;
 import com.example.cocktailvaultapi.Repository.CocktailRepository;
 import com.example.cocktailvaultapi.Service.CocktailService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +26,7 @@ public class CocktailServiceImpl implements CocktailService {
     }
 
     @Override
-    public List<CocktailDTO> findAllCocktails() {
+    public List<CocktailDTO> searchAllCocktailsRecipes() {
         List<Cocktail> cocktails = cocktailRepository.findAll();
         return cocktails.stream()
                 .map(this::convertToDTO)
@@ -30,14 +34,41 @@ public class CocktailServiceImpl implements CocktailService {
     }
 
     @Override
-    public ResponseEntity<CocktailDTO> findByName(String name) {
-        Optional<Cocktail> cocktail = cocktailRepository.findByName(name);
+    public PaginatedResponseDTO<CocktailDTO> searchAllCocktailsRecipesPageLimit(int page, int size) {
+        Page<Cocktail> paginatedCocktails = cocktailRepository.findAll(PageRequest.of(page, size));
+
+        List<CocktailDTO> cocktails = paginatedCocktails.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        // Create and return PaginatedResponseDTO with pagination data
+        PaginatedResponseDTO<CocktailDTO> response = new PaginatedResponseDTO<>();
+        response.setData(cocktails);
+        response.setTotalItems(paginatedCocktails.getTotalElements());
+        response.setTotalPages(paginatedCocktails.getTotalPages());
+        response.setCurrentPage(page);
+        response.setPageSize(size);
+
+        return response;
+    }
+
+
+    @Override
+    public ResponseEntity<CocktailDTO> searchByNameIgnoreCase(String name) {
+        Optional<Cocktail> cocktail = cocktailRepository.findByNameIgnoreCase(name);
         if (cocktail.isPresent()) {
             CocktailDTO cocktailDTO = convertToDTO(cocktail.get());
             return ResponseEntity.ok(cocktailDTO);
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @Override
+    public List<CocktailDTO> listCocktailsByFirstLetter(char letter) {
+        return cocktailRepository.findByNameStartingWithIgnoreCase(String.valueOf(letter)).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     private CocktailDTO convertToDTO(Cocktail cocktail) {
@@ -93,7 +124,9 @@ public class CocktailServiceImpl implements CocktailService {
 
         // Set the createdBy field
         dto.setCreatedBy(cocktail.getCreatedBy());
-
+        dto.setCreatedByLink(cocktail.getCreatedByLink());
+        dto.setCreatedDate(cocktail.getCreatedDate());
+        dto.setSpiritBrand(cocktail.getSpiritBrand());
         return dto;
     }
 }

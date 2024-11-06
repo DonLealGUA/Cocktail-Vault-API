@@ -1,5 +1,6 @@
 package com.example.cocktailvaultapi.DTO;
 
+import java.util.Date;
 import java.util.List;
 
 public class CocktailDTO {
@@ -8,9 +9,12 @@ public class CocktailDTO {
     private String instructions;
     private String imageUrl;
     private String glassType;
-    private List<String> spiritTypes; // Change here
+    private List<String> spiritTypes;
     private List<CocktailIngredientDTO> ingredients;
     private String createdBy;
+    private String createdByLink;
+    private Date createdDate;
+    private String spiritBrand;
 
     // Getters and Setters
     public Long getId() {
@@ -75,5 +79,29 @@ public class CocktailDTO {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public String getCreatedByLink() {
+        return createdByLink;
+    }
+
+    public void setCreatedByLink(String createdByLink) {
+        this.createdByLink = createdByLink;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public String getSpiritBrand() {
+        return spiritBrand;
+    }
+
+    public void setSpiritBrand(String spiritBrand) {
+        this.spiritBrand = spiritBrand;
     }
 }
