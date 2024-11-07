@@ -8,7 +8,7 @@ public class CocktailIngredient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Primary key for the join table
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "cocktail_id")

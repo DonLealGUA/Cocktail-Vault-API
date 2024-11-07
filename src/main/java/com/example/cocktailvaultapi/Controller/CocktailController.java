@@ -9,7 +9,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/cocktails")
@@ -21,6 +23,9 @@ public class CocktailController {
         this.cocktailService = cocktailService;
     }
 
+    /**
+     * Default mapping.
+     */
     @GetMapping
     public List<CocktailDTO> getAllCocktails() {
         return cocktailService.searchAllCocktailsRecipes();
@@ -41,6 +46,19 @@ public class CocktailController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * latest?count=5
+     */
+    @GetMapping("/latest")
+    public List<CocktailDTO> listLatestCocktails(@RequestParam(defaultValue = "5") int count) {
+        return cocktailService.listLatestCocktails(count);
+    }
+
+    @GetMapping("/random")
+    public ResponseEntity<CocktailDTO> getRandomCocktail() {
+        return cocktailService.getRandomCocktail();
+    }
+
 
 
     @GetMapping("/{name}")
@@ -52,4 +70,75 @@ public class CocktailController {
     public List<CocktailDTO> listCocktailsByFirstLetter(@PathVariable char letter) {
         return cocktailService.listCocktailsByFirstLetter(letter);
     }
+
+
+    @GetMapping("/filter/brand/{brand}")
+    public List<CocktailDTO> getCocktailsBySpiritBrand(@PathVariable("brand") String brand) {
+        return cocktailService.searchBySpiritBrand(brand);
+    }
+
+    @GetMapping("/filter/spirit/{spirit}")
+    public List<CocktailDTO> filterBySpiritType(@PathVariable("spirit") String spiritType) {
+        return cocktailService.searchBySpiritType(spiritType);
+    }
+    @GetMapping("/filter/glass/{glassType}")
+    public List<CocktailDTO> filterByGlassType(@PathVariable("glassType") String glassType) {
+        return cocktailService.filterByGlassType(glassType);
+    }
+
+
+    @GetMapping("/filter/ingredient/{ingredient}")
+    public List<CocktailDTO> searchBySpecificIngredient(@PathVariable("ingredient") String ingredient) {
+        return cocktailService.searchBySpecificIngredient(ingredient);
+    }
+
+
+    @GetMapping("/ingredients/exact")
+    public ResponseEntity<Object> searchWithExactIngredients(
+            @RequestParam List<String> ingredients,
+            @RequestParam(required = false) List<Integer> spirit_type_id) {
+
+        // Validate the ingredients parameter
+        if (ingredients == null || ingredients.isEmpty()) {
+            return ResponseEntity.badRequest().body("No ingredients provided.");
+        }
+
+        // Search for exact matches
+        List<CocktailDTO> cocktails = cocktailService.searchWithExactIngredients(ingredients, spirit_type_id);
+
+        if (cocktails.isEmpty()) {
+            return ResponseEntity.ok("No exact matches found for the provided ingredients.");
+        }
+        // Return the list of cocktails if exact matches are found
+        return ResponseEntity.ok(cocktails);
+    }
+
+
+    @GetMapping("/ingredients/partial")
+    public ResponseEntity<Object> searchWithPartialIngredients(
+            @RequestParam List<String> ingredients,
+            @RequestParam(required = false) List<Integer> spirit_type_id) {
+
+        // Validate the ingredients parameter
+        if (ingredients == null || ingredients.isEmpty()) {
+            return ResponseEntity.badRequest().body("No ingredients provided.");
+        }
+
+        // Normalize ingredients: remove spaces and convert to lowercase
+        List<String> normalizedIngredients = ingredients.stream()
+                .map(ingredient -> ingredient.toLowerCase().replace(" ", ""))
+                .collect(Collectors.toList());
+
+        // Search for partial matches (at least 2 ingredients)
+        List<CocktailDTO> partialMatches = cocktailService.searchWithPartialIngredients(normalizedIngredients, spirit_type_id);
+
+        if (partialMatches.isEmpty()) {
+            return ResponseEntity.ok("No partial matches found for the provided ingredients.");
+        }
+
+        // Return the list of partial matches if found
+        return ResponseEntity.ok(partialMatches);
+    }
+
+
 }

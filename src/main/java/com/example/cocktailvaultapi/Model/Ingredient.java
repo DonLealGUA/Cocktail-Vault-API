@@ -8,6 +8,7 @@ public class Ingredient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ingredient_id") // Ensure column mapping
     private Long ingredientId;
 
     @Column(nullable = false, length = 100)

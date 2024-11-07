@@ -5,6 +5,7 @@ import com.example.cocktailvaultapi.DTO.CocktailIngredientDTO;
 import com.example.cocktailvaultapi.DTO.PaginatedResponseDTO;
 import com.example.cocktailvaultapi.Model.Cocktail;
 import com.example.cocktailvaultapi.Repository.CocktailRepository;
+import com.example.cocktailvaultapi.Repository.SpiritRepository;
 import com.example.cocktailvaultapi.Service.CocktailService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,10 +21,15 @@ import java.util.stream.Collectors;
 public class CocktailServiceImpl implements CocktailService {
 
     private final CocktailRepository cocktailRepository;
+    private final SpiritRepository spiritRepository;
 
-    public CocktailServiceImpl(CocktailRepository cocktailRepository) {
+    public CocktailServiceImpl(CocktailRepository cocktailRepository, SpiritRepository spiritRepository) {
         this.cocktailRepository = cocktailRepository;
+        this.spiritRepository = spiritRepository;
     }
+
+    //TODO
+    // Make every list a PaginatedResponseDTO
 
     @Override
     public List<CocktailDTO> searchAllCocktailsRecipes() {
@@ -52,6 +58,29 @@ public class CocktailServiceImpl implements CocktailService {
         return response;
     }
 
+    @Override
+    public List<CocktailDTO> listLatestCocktails(int count) {
+        Pageable pageable = PageRequest.of(0, count);
+        return cocktailRepository.findLatestCocktails(pageable).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ResponseEntity<CocktailDTO> getRandomCocktail() {
+        // Fetch a random cocktail directly from the database (using a native query or custom repository method)
+        Optional<Cocktail> randomCocktailOptional = cocktailRepository.getRandomCocktail();
+
+        if (randomCocktailOptional.isEmpty()) {
+            return ResponseEntity.notFound().build(); // Return 404 if no cocktail found
+        }
+
+        // Convert the cocktail to DTO
+        CocktailDTO cocktailDTO = convertToDTO(randomCocktailOptional.get());
+
+        return ResponseEntity.ok(cocktailDTO); // Return 200 OK with the cocktail data
+    }
+
 
     @Override
     public ResponseEntity<CocktailDTO> searchByNameIgnoreCase(String name) {
@@ -71,9 +100,109 @@ public class CocktailServiceImpl implements CocktailService {
                 .collect(Collectors.toList());
     }
 
+
+    @Override
+    public List<CocktailDTO> searchBySpiritBrand(String brand) {
+        return cocktailRepository.findBySpiritBrandIgnoreCase(brand).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CocktailDTO> searchBySpiritType(String spiritType) {
+        return cocktailRepository.findBySpiritTypeIgnoreCaseAndSpaces(spiritType).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CocktailDTO> filterByGlassType(String glassType) {
+        return cocktailRepository.findByGlassTypeIgnoreCaseAndSpaces(glassType).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CocktailDTO> searchBySpecificIngredient(String ingredient) {
+        return cocktailRepository.findCocktailsByIngredientNameIgnoreCaseAndSpaces(ingredient).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    // Service Layer: Search for exact ingredient matches
+    @Override
+    public List<CocktailDTO> searchWithExactIngredients(List<String> ingredients, List<Integer> spiritTypeIds) {
+
+        // Normalize the provided ingredients (lowercase and remove spaces)
+        List<String> formattedIngredients = ingredients.stream()
+                .map(ingredient -> ingredient.trim().toLowerCase())
+                .collect(Collectors.toList());
+
+        // Get the count of ingredients
+        int ingredientCount = ingredients.size();
+
+
+        // Fetch exact ingredient matches from the repository
+        List<Cocktail> cocktails;
+        if (spiritTypeIds != null && !spiritTypeIds.isEmpty()) {
+            // If spiritTypeIds are provided, find cocktails with matching spirit types and ingredients
+            cocktails = null;// cocktailRepository.findByExactIngredientsAndSpirits(normalizedIngredients, ingredientCount, spiritTypeIds);
+            System.out.println("HELLO");
+            System.out.println("HELLO");
+            System.out.println("HELLO");
+            System.out.println("HELLO");
+            System.out.println("HELLO");
+
+        } else {
+            // Otherwise, just find cocktails with matching ingredients only
+             cocktails = cocktailRepository.findCocktailsWithExactIngredients(formattedIngredients, ingredientCount);
+            System.out.println("NO");
+            System.out.println("NO");
+            System.out.println("NO");
+            System.out.println("NO");
+
+        }
+
+        // Convert cocktails to DTOs and return
+        return cocktails.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+
+
+    // Service Layer: Search for partial ingredient matches (at least 2 ingredients)
+    @Override
+    public List<CocktailDTO> searchWithPartialIngredients(List<String> ingredients, List<Integer> spiritTypeIds) {
+        // Fetch cocktails from the repository
+        List<Cocktail> cocktails;
+        if (spiritTypeIds != null && !spiritTypeIds.isEmpty()) {
+            // If spiritTypeIds are provided, search for partial matches with spirits
+            cocktails = cocktailRepository.findByPartialIngredientsAndSpirits(ingredients, spiritTypeIds);
+        } else {
+            // If no spiritTypeIds are provided, only search by ingredients
+            cocktails = cocktailRepository.findByPartialIngredients(ingredients);
+        }
+
+        // Convert the Cocktail entities to CocktailDTOs
+        return cocktails.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    private List<String> fetchSpiritNames() {
+        // Fetch all spirit names from the database and return them as a list of strings
+        return spiritRepository.findAll().stream()
+                .map(spirit -> spirit.getName().toLowerCase().replace(" ", ""))
+                .collect(Collectors.toList());
+    }
+
+
     private CocktailDTO convertToDTO(Cocktail cocktail) {
         CocktailDTO dto = new CocktailDTO();
-        dto.setId(cocktail.getId());
+        dto.setId(cocktail.getCocktailId());
         dto.setName(cocktail.getName());
         dto.setInstructions(cocktail.getInstructions());
         dto.setImageUrl(cocktail.getImageUrl());

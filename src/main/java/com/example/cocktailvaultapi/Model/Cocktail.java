@@ -11,7 +11,7 @@ public class Cocktail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cocktail_id")
-    private Long id;
+    private Long cocktailId;
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
@@ -20,11 +20,11 @@ public class Cocktail {
     private String instructions;
 
     @ManyToOne
-    @JoinColumn(name = "glass_type_id")
-    private GlassType glassType;
+    @JoinColumn(name = "glass_type_id") // The 'glass_type_id' column in the cocktail table
+    private GlassType glassType; // This should reference the GlassType entity
 
     @OneToMany(mappedBy = "cocktail", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CocktailSpirit> cocktailSpirits; // Updated to hold multiple spirits
+    private List<CocktailSpirit> cocktailSpirits;
 
     @Column(name = "image_url", length = 255)
     private String imageUrl;
@@ -32,8 +32,9 @@ public class Cocktail {
     @OneToMany(mappedBy = "cocktail", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CocktailIngredient> cocktailIngredients;
 
-    @Column(name = "created_by", nullable = false, length = 100)
+    @Column(name = "created_by")
     private String createdBy;
+
 
     @Column(name = "created_by_link", nullable = true, length = 100)
     private String createdByLink;
@@ -51,12 +52,12 @@ public class Cocktail {
     }
 
     // Getters and setters
-    public Long getId() {
-        return id;
+    public Long getCocktailId() {
+        return cocktailId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setCocktailId(Long id) {
+        this.cocktailId = id;
     }
 
     public String getName() {
