@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -96,22 +97,30 @@ public class CocktailController {
     @GetMapping("/ingredients/exact")
     public ResponseEntity<Object> searchWithExactIngredients(
             @RequestParam List<String> ingredients,
-            @RequestParam(required = false) List<Integer> spirit_type_id) {
+            @RequestParam(required = false) List<String> spirit_types) {
 
         // Validate the ingredients parameter
         if (ingredients == null || ingredients.isEmpty()) {
             return ResponseEntity.badRequest().body("No ingredients provided.");
         }
 
+        // If spirit_types is null, default it to an empty list
+        if (spirit_types == null) {
+            spirit_types = new ArrayList<>();
+        }
+
         // Search for exact matches
-        List<CocktailDTO> cocktails = cocktailService.searchWithExactIngredients(ingredients, spirit_type_id);
+        List<CocktailDTO> cocktails = cocktailService.searchWithExactIngredients(ingredients, spirit_types);
 
         if (cocktails.isEmpty()) {
             return ResponseEntity.ok("No exact matches found for the provided ingredients.");
         }
+
         // Return the list of cocktails if exact matches are found
         return ResponseEntity.ok(cocktails);
     }
+
+
 
 
     @GetMapping("/ingredients/partial")

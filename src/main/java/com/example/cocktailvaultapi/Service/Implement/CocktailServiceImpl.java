@@ -6,13 +6,17 @@ import com.example.cocktailvaultapi.DTO.PaginatedResponseDTO;
 import com.example.cocktailvaultapi.Model.Cocktail;
 import com.example.cocktailvaultapi.Repository.CocktailRepository;
 import com.example.cocktailvaultapi.Repository.SpiritRepository;
+import com.example.cocktailvaultapi.Repository.ingredientRepository;
 import com.example.cocktailvaultapi.Service.CocktailService;
+import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,10 +26,12 @@ public class CocktailServiceImpl implements CocktailService {
 
     private final CocktailRepository cocktailRepository;
     private final SpiritRepository spiritRepository;
+    private final ingredientRepository ingredientRepository;
 
-    public CocktailServiceImpl(CocktailRepository cocktailRepository, SpiritRepository spiritRepository) {
+    public CocktailServiceImpl(CocktailRepository cocktailRepository, SpiritRepository spiritRepository, com.example.cocktailvaultapi.Repository.ingredientRepository ingredientRepository) {
         this.cocktailRepository = cocktailRepository;
         this.spiritRepository = spiritRepository;
+        this.ingredientRepository = ingredientRepository;
     }
 
     //TODO
@@ -128,40 +134,42 @@ public class CocktailServiceImpl implements CocktailService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+    // Method to transform the list: lowercase and remove spaces
+    private List<String> transformList(List<String> list) {
+        return list.stream()
+                .map(s -> s.trim().toLowerCase().replaceAll("\\s+", ""))  // Trim, convert to lowercase, and remove spaces
+                .collect(Collectors.toList());
+    }
 
 
     // Service Layer: Search for exact ingredient matches
     @Override
-    public List<CocktailDTO> searchWithExactIngredients(List<String> ingredients, List<Integer> spiritTypeIds) {
+    public List<CocktailDTO> searchWithExactIngredients(List<String> ingredients, List<String> spiritTypes) {
+        // Transform ingredients to lowercase and remove spaces
+        ingredients = transformList(ingredients);  // Valid ingredients without spaces and in lowercase
 
-        // Normalize the provided ingredients (lowercase and remove spaces)
-        List<String> formattedIngredients = ingredients.stream()
-                .map(ingredient -> ingredient.trim().toLowerCase())
-                .collect(Collectors.toList());
+        // Handle spiritTypes
+        if (spiritTypes != null) {
+            spiritTypes = transformList(spiritTypes);  // All spirit types without spaces and in lowercase
+        } else {
+            spiritTypes = new ArrayList<>(); // Default to an empty list if spiritTypes is null
+        }
 
-        // Get the count of ingredients
-        int ingredientCount = ingredients.size();
+        // Log the transformed lists for debugging purposes
+        System.out.println("Spirit Types: " + spiritTypes);  // This was previously logging ingredients, updated to reflect spiritTypes
+        System.out.println("Ingredients: " + ingredients);    // Logging ingredients
 
-
-        // Fetch exact ingredient matches from the repository
+        // Fetch cocktails that match the exact ingredients
         List<Cocktail> cocktails;
-        if (spiritTypeIds != null && !spiritTypeIds.isEmpty()) {
-            // If spiritTypeIds are provided, find cocktails with matching spirit types and ingredients
-            cocktails = null;// cocktailRepository.findByExactIngredientsAndSpirits(normalizedIngredients, ingredientCount, spiritTypeIds);
-            System.out.println("HELLO");
-            System.out.println("HELLO");
-            System.out.println("HELLO");
-            System.out.println("HELLO");
-            System.out.println("HELLO");
+        if (!spiritTypes.isEmpty()) {
+            // If spiritTypes are provided, find cocktails with matching spirit types and ingredients
+            System.out.printf("Before");
+            cocktails = cocktailRepository.findByExactIngredientsAndSpirits(ingredients, spiritTypes);
 
+            System.out.printf("After");
         } else {
             // Otherwise, just find cocktails with matching ingredients only
-             cocktails = cocktailRepository.findCocktailsWithExactIngredients(formattedIngredients, ingredientCount);
-            System.out.println("NO");
-            System.out.println("NO");
-            System.out.println("NO");
-            System.out.println("NO");
-
+            cocktails = cocktailRepository.findCocktailsWithExactIngredients(ingredients);
         }
 
         // Convert cocktails to DTOs and return
@@ -169,6 +177,8 @@ public class CocktailServiceImpl implements CocktailService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
+
 
 
 
@@ -206,6 +216,7 @@ public class CocktailServiceImpl implements CocktailService {
         dto.setName(cocktail.getName());
         dto.setInstructions(cocktail.getInstructions());
         dto.setImageUrl(cocktail.getImageUrl());
+        dto.setIceForm(cocktail.getIceForm());
 
         // Set glass type name
         if (cocktail.getGlassType() != null) {

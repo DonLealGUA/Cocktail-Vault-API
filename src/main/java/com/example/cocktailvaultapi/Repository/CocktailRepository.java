@@ -43,23 +43,34 @@ public interface CocktailRepository extends JpaRepository<Cocktail, Long> {
     // Repository Layer: Query for exact ingredient matches (no extras)
     /**
      * Finds cocktails that contain exactly the specified ingredients.
-     *
-     * @param ingredients      List of normalized ingredient names (lowercase, no spaces).
-     * @param ingredientCount  The number of ingredients to match.
+     * @param ingredients List of normalized ingredient names (lowercase, no spaces).
      * @return List of matching cocktails.
      */
-    @Query("SELECT c FROM Cocktail c " +
+    @Query("SELECT DISTINCT c FROM Cocktail c " +
             "JOIN c.cocktailIngredients ci " +
             "JOIN ci.ingredient i " +
-            "WHERE LOWER(i.name) IN :ingredients " +
-            "AND ci.spiritType IS NULL " +  // Exclude spirit ingredients
-            "GROUP BY c.cocktailId, c.name " +
-            "HAVING COUNT(DISTINCT i.name) = :ingredientCount " +  // Exact match of the distinct ingredients in the list
-            "AND (SELECT COUNT(*) FROM CocktailIngredient ci2 " +
-            "      JOIN ci2.ingredient i2 " +
-            "WHERE ci2.cocktail = c " +  // Referencing the `cocktail` field in `CocktailIngredient`
-            "AND ci2.spiritType IS NULL) = :ingredientCount")  // Ensure total non-spirit ingredient count matches
-    List<Cocktail> findCocktailsWithExactIngredients(List<String> ingredients, int ingredientCount);
+            "WHERE REPLACE(LOWER(i.name), ' ', '') IN :ingredients " +
+            "AND i.type NOT IN ('garnish') " +
+            "AND ci.ingredient IS NOT NULL " +
+            "GROUP BY c.cocktailId " +
+            "HAVING COUNT(DISTINCT ci.ingredient) = " +
+            "(SELECT COUNT(DISTINCT ci2.ingredient) " +
+            "FROM CocktailIngredient ci2 " +
+            "WHERE ci2.cocktail.cocktailId = c.cocktailId " +
+            "AND ci2.ingredient IS NOT NULL)"
+    )
+    List<Cocktail> findCocktailsWithExactIngredients(List<String> ingredients);
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -67,10 +78,64 @@ public interface CocktailRepository extends JpaRepository<Cocktail, Long> {
 
 
     // Repository Layer: Query for exact matches for both ingredients and spirits (no extras)
+    @Query(value = """
+        WITH available_ingredients AS (
+            SELECT ingredient_id
+            FROM ingredients
+            WHERE name = ANY(:ingredients)
+              AND type NOT IN ('garnish')
+        ),
+        available_spirits AS (
+            SELECT spirit_type_id
+            FROM spirit_types
+            WHERE name = ANY(:spiritTypes)
+        ),
+        matching_cocktails AS (
+            SELECT ci.cocktail_id
+            FROM cocktail_ingredients ci
+            JOIN available_ingredients ai ON ci.ingredient_id = ai.ingredient_id
+            GROUP BY ci.cocktail_id
+            HAVING COUNT(DISTINCT ci.ingredient_id) = (
+                SELECT COUNT(DISTINCT ingredient_id)
+                FROM cocktail_ingredients
+                WHERE cocktail_id = ci.cocktail_id
+                  AND ingredient_id IS NOT NULL
+            )
+        ),
+        matching_cocktails_with_spirits AS (
+            SELECT cs.cocktail_id
+            FROM cocktail_spirits cs
+            JOIN available_spirits asps ON cs.spirit_type_id = asps.spirit_type_id
+            GROUP BY cs.cocktail_id
+            HAVING COUNT(DISTINCT cs.spirit_type_id) = (
+                SELECT COUNT(DISTINCT spirit_type_id)
+                FROM cocktail_spirits
+                WHERE cocktail_id = cs.cocktail_id
+                  AND spirit_type_id IS NOT NULL
+            )
+        )
+        SELECT DISTINCT c.cocktail_id, c.name AS cocktail_name
+        FROM matching_cocktails mc
+        JOIN cocktails c ON mc.cocktail_id = c.cocktail_id
+        UNION
+        SELECT DISTINCT c.cocktail_id, c.name AS cocktail_name
+        FROM matching_cocktails_with_spirits mcw
+        JOIN cocktails c ON mcw.cocktail_id = c.cocktail_id
+        ORDER BY cocktail_name
+        """, nativeQuery = true)
+    List<Cocktail> findByExactIngredientsAndSpirits(
+            @Param("ingredients") List<String> ingredients,
+            @Param("spiritTypes") List<String> spiritTypes);
 
 
 
 
+    // Query to find cocktails by spirit type IDs
+    @Query("SELECT c FROM Cocktail c " +
+            "JOIN c.cocktailSpirits cs " +
+            "JOIN cs.spiritType st " +
+            "WHERE st.spiritTypeId IN :spiritTypeIds")
+    public List<Cocktail> findBySpiritTypeIds(@Param("spiritTypeIds") List<Long> spiritTypeIds);
 
 
     // Repository Layer: Query for partial ingredient matches (at least 2 ingredients)

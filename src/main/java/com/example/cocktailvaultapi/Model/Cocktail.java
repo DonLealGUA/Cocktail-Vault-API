@@ -35,6 +35,9 @@ public class Cocktail {
     @Column(name = "created_by")
     private String createdBy;
 
+    @Column(name = "ice_form")
+    private String IceForm;
+
 
     @Column(name = "created_by_link", nullable = true, length = 100)
     private String createdByLink;
@@ -138,5 +141,13 @@ public class Cocktail {
 
     public void setCreatedByLink(String createdByLink) {
         this.createdByLink = createdByLink;
+    }
+
+    public String getIceForm() {
+        return IceForm;
+    }
+
+    public void setIceForm(String iceForm) {
+        IceForm = iceForm;
     }
 }

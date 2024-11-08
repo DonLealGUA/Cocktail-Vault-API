@@ -15,6 +15,10 @@ public class CocktailDTO {
     private String createdByLink;
     private Date createdDate;
     private String spiritBrand;
+    private String iceForm;
+
+
+
 
     // Getters and Setters
     public Long getId() {
@@ -104,4 +108,13 @@ public class CocktailDTO {
     public void setSpiritBrand(String spiritBrand) {
         this.spiritBrand = spiritBrand;
     }
+
+    public String getIceForm() {
+        return iceForm;
+    }
+
+    public void setIceForm(String iceForm) {
+        this.iceForm = iceForm;
+    }
+
 }
