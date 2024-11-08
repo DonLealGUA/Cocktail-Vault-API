@@ -141,6 +141,11 @@ public class CocktailServiceImpl implements CocktailService {
                 .collect(Collectors.toList());
     }
 
+    public String convertListToStringWithQuotes(List<String> items) {
+        String joinedString = String.join(",", items);
+        return joinedString;  // Return as a plain string without single quotes
+    }
+
 
     // Service Layer: Search for exact ingredient matches
     @Override
@@ -163,10 +168,13 @@ public class CocktailServiceImpl implements CocktailService {
         List<Cocktail> cocktails;
         if (!spiritTypes.isEmpty()) {
             // If spiritTypes are provided, find cocktails with matching spirit types and ingredients
-            System.out.printf("Before");
-            cocktails = cocktailRepository.findByExactIngredientsAndSpirits(ingredients, spiritTypes);
+            String ingredientsString = convertListToStringWithQuotes(ingredients);  // No quotes around the ingredients string
+            String spiritTypesString  = convertListToStringWithQuotes(spiritTypes);  // No quotes around the spirit types string
 
-            System.out.printf("After");
+            System.out.println("Spirit Types STRING: " + spiritTypesString);  // Logging spirit types
+            System.out.println("Ingredients STRING: " + ingredientsString);    // Logging ingredients
+
+            cocktails = cocktailRepository.findByExactIngredientsAndSpirits(ingredientsString, spiritTypesString);
         } else {
             // Otherwise, just find cocktails with matching ingredients only
             cocktails = cocktailRepository.findCocktailsWithExactIngredients(ingredients);
@@ -177,6 +185,7 @@ public class CocktailServiceImpl implements CocktailService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
 
 
 

@@ -79,53 +79,63 @@ public interface CocktailRepository extends JpaRepository<Cocktail, Long> {
 
     // Repository Layer: Query for exact matches for both ingredients and spirits (no extras)
     @Query(value = """
-        WITH available_ingredients AS (
-            SELECT ingredient_id
-            FROM ingredients
-            WHERE name = ANY(:ingredients)
-              AND type NOT IN ('garnish')
-        ),
-        available_spirits AS (
-            SELECT spirit_type_id
-            FROM spirit_types
-            WHERE name = ANY(:spiritTypes)
-        ),
-        matching_cocktails AS (
-            SELECT ci.cocktail_id
-            FROM cocktail_ingredients ci
-            JOIN available_ingredients ai ON ci.ingredient_id = ai.ingredient_id
-            GROUP BY ci.cocktail_id
-            HAVING COUNT(DISTINCT ci.ingredient_id) = (
-                SELECT COUNT(DISTINCT ingredient_id)
-                FROM cocktail_ingredients
-                WHERE cocktail_id = ci.cocktail_id
-                  AND ingredient_id IS NOT NULL
-            )
-        ),
-        matching_cocktails_with_spirits AS (
-            SELECT cs.cocktail_id
-            FROM cocktail_spirits cs
-            JOIN available_spirits asps ON cs.spirit_type_id = asps.spirit_type_id
-            GROUP BY cs.cocktail_id
-            HAVING COUNT(DISTINCT cs.spirit_type_id) = (
-                SELECT COUNT(DISTINCT spirit_type_id)
-                FROM cocktail_spirits
-                WHERE cocktail_id = cs.cocktail_id
-                  AND spirit_type_id IS NOT NULL
-            )
-        )
-        SELECT DISTINCT c.cocktail_id, c.name AS cocktail_name
-        FROM matching_cocktails mc
-        JOIN cocktails c ON mc.cocktail_id = c.cocktail_id
-        UNION
-        SELECT DISTINCT c.cocktail_id, c.name AS cocktail_name
-        FROM matching_cocktails_with_spirits mcw
-        JOIN cocktails c ON mcw.cocktail_id = c.cocktail_id
-        ORDER BY cocktail_name
-        """, nativeQuery = true)
+WITH available_ingredients AS (
+    SELECT ingredient_id
+    FROM ingredients i
+    JOIN LATERAL unnest(string_to_array(:ingredients, ',')) AS ingredient_name ON TRUE
+    WHERE TRIM(LOWER(REPLACE(i.name, ' ', ''))) = LOWER(REPLACE(ingredient_name, ' ', ''))
+    AND TRIM(LOWER(REPLACE(i.type, ' ', ''))) NOT IN (LOWER(REPLACE('garnish', ' ', '')))
+),
+available_spirits AS (
+    SELECT spirit_type_id
+    FROM spirit_types
+    JOIN LATERAL unnest(string_to_array(:spiritTypes, ',')) AS spirit_name ON TRUE
+    WHERE TRIM(LOWER(REPLACE(name, ' ', ''))) = LOWER(REPLACE(spirit_name, ' ', ''))
+),
+matching_cocktails AS (
+    SELECT ci.cocktail_id
+    FROM cocktail_ingredients ci
+    JOIN available_ingredients ai ON ci.ingredient_id = ai.ingredient_id
+    GROUP BY ci.cocktail_id
+    HAVING COUNT(DISTINCT ci.ingredient_id) = (
+        SELECT COUNT(DISTINCT ingredient_id)
+        FROM cocktail_ingredients
+        WHERE cocktail_id = ci.cocktail_id
+        AND ingredient_id IS NOT NULL
+    )
+),
+matching_cocktails_with_spirits AS (
+    SELECT cs.cocktail_id
+    FROM cocktail_spirits cs
+    JOIN available_spirits asps ON cs.spirit_type_id = asps.spirit_type_id
+    GROUP BY cs.cocktail_id
+    HAVING COUNT(DISTINCT cs.spirit_type_id) = (
+        SELECT COUNT(DISTINCT spirit_type_id)
+        FROM cocktail_spirits
+        WHERE cocktail_id = cs.cocktail_id
+        AND spirit_type_id IS NOT NULL
+    )
+)
+SELECT *
+FROM (
+    SELECT DISTINCT c.*
+    FROM matching_cocktails mc
+    JOIN cocktails c ON mc.cocktail_id = c.cocktail_id
+    UNION
+    SELECT DISTINCT c.*
+    FROM matching_cocktails_with_spirits mcw
+    JOIN cocktails c ON mcw.cocktail_id = c.cocktail_id
+) AS combined_results
+ORDER BY combined_results.name
+""", nativeQuery = true)
     List<Cocktail> findByExactIngredientsAndSpirits(
-            @Param("ingredients") List<String> ingredients,
-            @Param("spiritTypes") List<String> spiritTypes);
+            @Param("ingredients") String ingredients,
+            @Param("spiritTypes") String spiritTypes);
+
+
+
+
+
 
 
 
