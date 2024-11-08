@@ -160,19 +160,16 @@ public class CocktailServiceImpl implements CocktailService {
             spiritTypes = new ArrayList<>(); // Default to an empty list if spiritTypes is null
         }
 
-        // Log the transformed lists for debugging purposes
-        System.out.println("Spirit Types: " + spiritTypes);  // This was previously logging ingredients, updated to reflect spiritTypes
-        System.out.println("Ingredients: " + ingredients);    // Logging ingredients
+
 
         // Fetch cocktails that match the exact ingredients
         List<Cocktail> cocktails;
         if (!spiritTypes.isEmpty()) {
             // If spiritTypes are provided, find cocktails with matching spirit types and ingredients
-            String ingredientsString = convertListToStringWithQuotes(ingredients);  // No quotes around the ingredients string
-            String spiritTypesString  = convertListToStringWithQuotes(spiritTypes);  // No quotes around the spirit types string
+            //Don't ask!
+            String ingredientsString = convertListToStringWithQuotes(ingredients);
+            String spiritTypesString  = convertListToStringWithQuotes(spiritTypes);
 
-            System.out.println("Spirit Types STRING: " + spiritTypesString);  // Logging spirit types
-            System.out.println("Ingredients STRING: " + ingredientsString);    // Logging ingredients
 
             cocktails = cocktailRepository.findByExactIngredientsAndSpirits(ingredientsString, spiritTypesString);
         } else {
@@ -188,33 +185,34 @@ public class CocktailServiceImpl implements CocktailService {
 
 
 
-
-
-
     // Service Layer: Search for partial ingredient matches (at least 2 ingredients)
     @Override
-    public List<CocktailDTO> searchWithPartialIngredients(List<String> ingredients, List<Integer> spiritTypeIds) {
+    public List<CocktailDTO> searchWithPartialIngredients(List<String> ingredients, List<String> spiritTypes ) {
         // Fetch cocktails from the repository
+        ingredients = transformList(ingredients);  // Valid ingredients without spaces and in lowercase
+
+        // Handle spiritTypes
+        if (spiritTypes != null) {
+            spiritTypes = transformList(spiritTypes);  // All spirit types without spaces and in lowercase
+        } else {
+            spiritTypes = new ArrayList<>(); // Default to an empty list if spiritTypes is null
+        }
+
+        String ingredientsString = convertListToStringWithQuotes(ingredients);
+        String spiritTypesString  = convertListToStringWithQuotes(spiritTypes);
+
         List<Cocktail> cocktails;
-        if (spiritTypeIds != null && !spiritTypeIds.isEmpty()) {
+        if (!spiritTypes.isEmpty()) {
             // If spiritTypeIds are provided, search for partial matches with spirits
-            cocktails = cocktailRepository.findByPartialIngredientsAndSpirits(ingredients, spiritTypeIds);
+            cocktails = cocktailRepository.findByPartialIngredientsAndSpirits(ingredientsString , spiritTypesString);
         } else {
             // If no spiritTypeIds are provided, only search by ingredients
-            cocktails = cocktailRepository.findByPartialIngredients(ingredients);
+            cocktails = cocktailRepository.findByPartialIngredients(ingredientsString );
         }
 
         // Convert the Cocktail entities to CocktailDTOs
         return cocktails.stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-
-    private List<String> fetchSpiritNames() {
-        // Fetch all spirit names from the database and return them as a list of strings
-        return spiritRepository.findAll().stream()
-                .map(spirit -> spirit.getName().toLowerCase().replace(" ", ""))
                 .collect(Collectors.toList());
     }
 

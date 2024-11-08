@@ -27,6 +27,6 @@ public interface CocktailService {
     List<CocktailDTO> searchBySpecificIngredient(String ingredient); // Search cocktails with a specific ingredient
     List<CocktailDTO> searchWithExactIngredients(List<String> ingredients, List<String> spirits) ; // Search cocktails with only specific ingredients
 
-    List<CocktailDTO> searchWithPartialIngredients(List<String> normalizedIngredients, List<Integer> spiritTypeId);
+    List<CocktailDTO> searchWithPartialIngredients(List<String> normalizedIngredients, List<String> spirits);
 
 }

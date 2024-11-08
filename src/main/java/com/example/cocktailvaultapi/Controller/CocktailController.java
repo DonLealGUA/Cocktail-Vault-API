@@ -126,7 +126,7 @@ public class CocktailController {
     @GetMapping("/ingredients/partial")
     public ResponseEntity<Object> searchWithPartialIngredients(
             @RequestParam List<String> ingredients,
-            @RequestParam(required = false) List<Integer> spirit_type_id) {
+            @RequestParam(required = false) List<String> spirit_types) {
 
         // Validate the ingredients parameter
         if (ingredients == null || ingredients.isEmpty()) {
@@ -139,7 +139,7 @@ public class CocktailController {
                 .collect(Collectors.toList());
 
         // Search for partial matches (at least 2 ingredients)
-        List<CocktailDTO> partialMatches = cocktailService.searchWithPartialIngredients(normalizedIngredients, spirit_type_id);
+        List<CocktailDTO> partialMatches = cocktailService.searchWithPartialIngredients(normalizedIngredients, spirit_types);
 
         if (partialMatches.isEmpty()) {
             return ResponseEntity.ok("No partial matches found for the provided ingredients.");
