@@ -6,16 +6,15 @@ public class CocktailIngredientDTO {
     private String quantity;
     private String spiritTypeName; // Add spirit type name
 
+    /**
+     * Getters and setters
+     */
     public String getIngredientName() {
         return ingredientName;
     }
 
     public void setIngredientName(String ingredientName) {
         this.ingredientName = ingredientName;
-    }
-
-    public String getQuantity() {
-        return quantity;
     }
 
     public void setQuantity(String quantity) {

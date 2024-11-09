@@ -3,14 +3,10 @@ package com.example.cocktailvaultapi.DTO;
 public class IngredientDTO {
     private String name;
     private String quantity;
-    private boolean isLiqueur; // To differentiate liqueur types
 
-    public IngredientDTO(String name, String quantity) {
-        this.name = name;
-        this.quantity = quantity;
-        this.isLiqueur = isLiqueur;
-    }
-
+    /**
+     * Getter and setter
+     */
 
     public String getName() {
         return name;
@@ -20,12 +16,5 @@ public class IngredientDTO {
         this.name = name;
     }
 
-    public String getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(String quantity) {
-        this.quantity = quantity;
-    }
 }
 

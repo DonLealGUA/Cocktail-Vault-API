@@ -10,7 +10,9 @@ public class PaginatedResponseDTO <T> {
     private int pageSize;      // Number of items per page
 
 
-    // Getters and Setters
+    /**
+     * Getters and setters
+     */
     public List<T> getData() {
         return data;
     }
@@ -19,33 +21,19 @@ public class PaginatedResponseDTO <T> {
         this.data = data;
     }
 
-    public long getTotalItems() {
-        return totalItems;
-    }
-
     public void setTotalItems(long totalItems) {
         this.totalItems = totalItems;
-    }
-
-    public int getTotalPages() {
-        return totalPages;
     }
 
     public void setTotalPages(int totalPages) {
         this.totalPages = totalPages;
     }
 
-    public int getCurrentPage() {
-        return currentPage;
-    }
 
     public void setCurrentPage(int currentPage) {
         this.currentPage = currentPage;
     }
 
-    public int getPageSize() {
-        return pageSize;
-    }
 
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
