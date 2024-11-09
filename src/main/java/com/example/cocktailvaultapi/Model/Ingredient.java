@@ -6,25 +6,21 @@ import jakarta.persistence.*;
 @Table(name = "Ingredients")
 public class Ingredient {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ingredient_id") // Ensure column mapping
-    private Long ingredientId;
+    @Column(name = "ingredient_id")
+    private Long ingredientId; // Unique identifier for the ingredient
 
     @Column(nullable = false, length = 100)
-    private String name;
+    private String name; // Name of the ingredient (e.g., "Lime")
 
     @Column(length = 50)
-    private String type;
+    private String type; // Type of ingredient (e.g., "Fruit", "Soda")
 
-    // Getters and Setters
-    public Long getIngredientId() {
-        return ingredientId;
-    }
-
-    public void setIngredientId(Long ingredientId) {
-        this.ingredientId = ingredientId;
-    }
+    /**
+     * Getters and setters
+     */
 
     public String getName() {
         return name;
@@ -34,11 +30,4 @@ public class Ingredient {
         this.name = name;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 }

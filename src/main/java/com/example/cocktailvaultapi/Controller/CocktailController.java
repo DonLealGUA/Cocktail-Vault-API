@@ -2,6 +2,7 @@ package com.example.cocktailvaultapi.Controller;
 
 import com.example.cocktailvaultapi.DTO.CocktailDTO;
 import com.example.cocktailvaultapi.DTO.PaginatedResponseDTO;
+import com.example.cocktailvaultapi.Exception.CustomException;
 import com.example.cocktailvaultapi.Model.Cocktail;
 import com.example.cocktailvaultapi.Service.CocktailService;
 import org.springframework.data.domain.Page;
@@ -25,83 +26,285 @@ public class CocktailController {
     }
 
     /**
-     * Default mapping.
+     * Returns a response entity with the error message if no cocktails match the search or the input is invalid.
+     *
+     * @param ex The custom exception thrown.
+     * @return A ResponseEntity containing the error message.
      */
-    @GetMapping
-    public List<CocktailDTO> getAllCocktails() {
-        return cocktailService.searchAllCocktailsRecipes();
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<String> handleCustomException(CustomException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
     /**
-     * /cocktails/page?page=0&size=10
+     * Default mapping: /api/cocktails
+     * Returns a list of all cocktails.
+     * If no cocktails are found, throws a CustomException.
+     *
+     * @return A list of all cocktails.
+     * @throws CustomException if no cocktails are found.
+     */
+    @GetMapping
+    public List<CocktailDTO> getAllCocktails() {
+        List<CocktailDTO> cocktails = cocktailService.searchAllCocktailsRecipes();
+        if (cocktails.isEmpty()) {
+            throw new CustomException("No cocktails found");
+        }
+        return cocktails;
+    }
+
+    /**
+     * Returns a paginated list of all cocktails.
+     * If no results are found for the given page and size, throws a CustomException.
+     * Example: http://localhost:8080/api/cocktails/page?page=0&size=10
+     *
+     * @param page The page number for pagination.
+     * @param size The number of items per page.
+     * @return A paginated list of cocktails.
+     * @throws CustomException if no cocktails are found for the given page and size.
      */
     @GetMapping("/page")
     public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> getAllCocktailsPageLimit(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        // Call the service method to get the paginated response
         PaginatedResponseDTO<CocktailDTO> response = cocktailService.searchAllCocktailsRecipesPageLimit(page, size);
 
-        // Return the paginated response
+        if (response.getData().isEmpty()) {
+            throw new CustomException("No cocktails found for the given page and size");
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    /**
+     * Returns a paginated list of the latest cocktails.
+     * If no results are found for the given page and size, throws a CustomException.
+     * Example: http://localhost:8080/api/cocktails/latest
+     * Or: http://localhost:8080/api/cocktails/latest?page=0&size=10
+     *
+     * @param page The page number for pagination.
+     * @param size The number of items per page.
+     * @return A paginated list of the latest cocktails.
+     * @throws CustomException if no latest cocktails are found.
+     */
+    @GetMapping("/latest")
+    public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> listLatestCocktails(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PaginatedResponseDTO<CocktailDTO> response = cocktailService.listLatestCocktails(page, size);
+
+        if (response.getData().isEmpty()) {
+            throw new CustomException("No latest cocktails found");
+        }
+
         return ResponseEntity.ok(response);
     }
 
     /**
-     * latest?count=5
+     * Returns a random cocktail.
+     * If no random cocktail is found, throws a CustomException.
+     * Exmaple: http://localhost:8080/api/cocktails/random
+     *
+     * @return A random cocktail.
+     * @throws CustomException if no random cocktail is found.
      */
-    @GetMapping("/latest")
-    public List<CocktailDTO> listLatestCocktails(@RequestParam(defaultValue = "5") int count) {
-        return cocktailService.listLatestCocktails(count);
-    }
-
     @GetMapping("/random")
     public ResponseEntity<CocktailDTO> getRandomCocktail() {
-        return cocktailService.getRandomCocktail();
+        CocktailDTO cocktail = cocktailService.getRandomCocktail().getBody();
+        if (cocktail == null) {
+            throw new CustomException("No random cocktail found");
+        }
+        return ResponseEntity.ok(cocktail);
     }
 
-
-
+    /**
+     * Returns a paginated list of cocktails by name.
+     * If no cocktails are found with the given name, throws a CustomException.
+     * Example: http://localhost:8080/api/cocktails/Mojito
+     *
+     * @param name The name of the cocktail.
+     * @param page The page number for pagination.
+     * @param size The number of items per page.
+     * @return A paginated list of cocktails matching the name.
+     * @throws CustomException if no cocktails are found with the given name.
+     */
     @GetMapping("/{name}")
-    public ResponseEntity<CocktailDTO> getCocktailByName(@PathVariable("name") String name) {
-        return cocktailService.searchByNameIgnoreCase(name);
+    public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> getCocktailByName(
+            @PathVariable("name") String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PaginatedResponseDTO<CocktailDTO> response = cocktailService.searchByNameIgnoreCase(name, page, size);
+
+        if (response.getData().isEmpty()) {
+            throw new CustomException("No cocktails found with the name: " + name);
+        }
+
+        return ResponseEntity.ok(response);
     }
 
+
+    /**
+     * Returns a paginated list of cocktails by first letter.
+     * If an invalid letter is provided or no cocktails are found, throws a CustomException.
+     * Example: http://localhost:8080/api/cocktails/by-letter/M
+     *
+     * @param letter The first letter of the cocktail name.
+     * @param page The page number for pagination.
+     * @param size The number of items per page.
+     * @return A paginated list of cocktails starting with the given letter.
+     * @throws CustomException if the letter is invalid or no cocktails are found with the given letter.
+     */
     @GetMapping("/by-letter/{letter}")
-    public List<CocktailDTO> listCocktailsByFirstLetter(@PathVariable char letter) {
-        return cocktailService.listCocktailsByFirstLetter(letter);
+    public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> listCocktailsByFirstLetter(
+            @PathVariable("letter") char letter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        if (Character.isDigit(letter)) {
+            throw new CustomException("Invalid letter: " + letter + ". Must be a letter.");
+        }
+
+        PaginatedResponseDTO<CocktailDTO> response = cocktailService.listCocktailsByFirstLetter(letter, page, size);
+
+        if (response.getData().isEmpty()) {
+            throw new CustomException("No cocktails found starting with: " + letter);
+        }
+
+        return ResponseEntity.ok(response);
     }
 
 
+    /**
+     * Returns a paginated list of cocktails filtered by spirit brand.
+     * If no cocktails are found for the given brand, throws a CustomException.
+     * Example: http://localhost:8080/api/cocktails/filter/brand/Bacardi
+     *
+     * @param brand The spirit brand to filter by.
+     * @param page The page number for pagination.
+     * @param size The number of items per page.
+     * @return A paginated list of cocktails filtered by spirit brand.
+     * @throws CustomException if no cocktails are found for the given brand.
+     */
     @GetMapping("/filter/brand/{brand}")
-    public List<CocktailDTO> getCocktailsBySpiritBrand(@PathVariable("brand") String brand) {
-        return cocktailService.searchBySpiritBrand(brand);
+    public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> getCocktailsBySpiritBrand(
+            @PathVariable("brand") String brand,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PaginatedResponseDTO<CocktailDTO> response = cocktailService.searchBySpiritBrand(brand, page, size);
+
+        if (response.getData().isEmpty()) {
+            throw new CustomException("No cocktails found with the brand: " + brand);
+        }
+
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * Returns a paginated list of cocktails filtered by spirit type.
+     * If no cocktails are found for the given spirit type, throws a CustomException.
+     * http://localhost:8080/api/cocktails/filter/spirit/Rum
+     *
+     * @param spiritType The spirit type to filter by.
+     * @param page The page number for pagination.
+     * @param size The number of items per page.
+     * @return A paginated list of cocktails filtered by spirit type.
+     * @throws CustomException if no cocktails are found for the given spirit type.
+     */
     @GetMapping("/filter/spirit/{spirit}")
-    public List<CocktailDTO> filterBySpiritType(@PathVariable("spirit") String spiritType) {
-        return cocktailService.searchBySpiritType(spiritType);
+    public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> filterBySpiritType(
+            @PathVariable("spirit") String spiritType,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PaginatedResponseDTO<CocktailDTO> response = cocktailService.searchBySpiritType(spiritType, page, size);
+
+        if (response.getData().isEmpty()) {
+            throw new CustomException("No cocktails found with the spirit type: " + spiritType);
+        }
+
+        return ResponseEntity.ok(response);
     }
+
+    /**
+     * Returns a paginated list of cocktails filtered by glass type.
+     * If no cocktails are found for the given glass type, throws a CustomException.
+     * Example: http://localhost:8080/api/cocktails/filter/glass/Highball%20Glass
+     *
+     * @param glassType The glass type to filter by.
+     * @param page The page number for pagination.
+     * @param size The number of items per page.
+     * @return A paginated list of cocktails filtered by glass type.
+     * @throws CustomException if no cocktails are found for the given glass type.
+     */
     @GetMapping("/filter/glass/{glassType}")
-    public List<CocktailDTO> filterByGlassType(@PathVariable("glassType") String glassType) {
-        return cocktailService.filterByGlassType(glassType);
+    public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> filterByGlassType(
+            @PathVariable("glassType") String glassType,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PaginatedResponseDTO<CocktailDTO> response = cocktailService.filterByGlassType(glassType, page, size);
+
+        if (response.getData().isEmpty()) {
+            throw new CustomException("No cocktails found with the glass type: " + glassType);
+        }
+
+        return ResponseEntity.ok(response);
     }
 
-
+    /**
+     * Returns a paginated list of cocktails containing a specific ingredient.
+     * If no cocktails are found with the given ingredient, throws a CustomException.
+     * Example: http://localhost:8080/api/cocktails/filter/ingredient/Lime
+     *
+     * @param ingredient The ingredient to filter by.
+     * @param page The page number for pagination.
+     * @param size The number of items per page.
+     * @return A paginated list of cocktails containing the given ingredient.
+     * @throws CustomException if no cocktails are found with the given ingredient.
+     */
     @GetMapping("/filter/ingredient/{ingredient}")
-    public List<CocktailDTO> searchBySpecificIngredient(@PathVariable("ingredient") String ingredient) {
-        return cocktailService.searchBySpecificIngredient(ingredient);
+    public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> searchBySpecificIngredient(
+            @PathVariable("ingredient") String ingredient,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size){
+
+        PaginatedResponseDTO<CocktailDTO> response = cocktailService.searchBySpecificIngredient(ingredient,page,size);
+
+        if (response.getData().isEmpty()) {
+            throw new CustomException("No cocktails found with the ingredient: " + ingredient);
+        }
+
+        return ResponseEntity.ok(response);
     }
 
-
+    /**
+     * Searches for cocktails that contain the exact specified ingredients and optional spirit types.
+     * Example 1: http://localhost:8080/api/cocktails/ingredients/exact?ingredients=Ice&ingredients=Coconut%20cream&ingredients=Pineapple%20juice&ingredients=Sugar&ingredients=Lime&ingredients=Soda%20water&ingredients=Mint%20leaves
+     * Example 2: http://localhost:8080/api/cocktails/ingredients/exact?ingredients=Ice&ingredients=Coconut%20cream&ingredients=Pineapple%20juice&spirit_types=Vodka&spirit_types=Dry%20Vermouth
+     *
+     * @param ingredients The list of ingredients to search for, required. Example: ["Ice", "Coconut cream", "Pineapple juice"].
+     * @param spirit_types The optional list of spirit types. Example: ["Vodka", "Dry Vermouth"].
+     * @param page The page number for pagination (default is 0). Example: 0.
+     * @param size The page size for pagination (default is 10). Example: 10.
+     * @return A ResponseEntity containing a PaginatedResponseDTO with matching cocktails.
+     * @throws CustomException if no cocktails are found or if the ingredients list is empty.
+     */
     @GetMapping("/ingredients/exact")
-    public ResponseEntity<Object> searchWithExactIngredients(
+    public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> searchWithExactIngredients(
             @RequestParam List<String> ingredients,
-            @RequestParam(required = false) List<String> spirit_types) {
+            @RequestParam(required = false) List<String> spirit_types,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         // Validate the ingredients parameter
         if (ingredients == null || ingredients.isEmpty()) {
-            return ResponseEntity.badRequest().body("No ingredients provided.");
+            // Throw a CustomException if no ingredients are provided
+            throw new CustomException("Ingredients list cannot be empty");
         }
 
         // If spirit_types is null, default it to an empty list
@@ -109,44 +312,65 @@ public class CocktailController {
             spirit_types = new ArrayList<>();
         }
 
-        // Search for exact matches
-        List<CocktailDTO> cocktails = cocktailService.searchWithExactIngredients(ingredients, spirit_types);
+        // Search for exact matches with pagination
+        PaginatedResponseDTO<CocktailDTO> response = cocktailService.searchWithExactIngredients(ingredients, spirit_types, page, size);
 
-        if (cocktails.isEmpty()) {
-            return ResponseEntity.ok("No exact matches found for the provided ingredients.");
+        // Check if no results were found
+        if (response.getData().isEmpty()) {
+            // Throw a CustomException if no cocktails were found
+            throw new CustomException("No cocktails found for the provided ingredients");
         }
 
-        // Return the list of cocktails if exact matches are found
-        return ResponseEntity.ok(cocktails);
+        // Return the list of cocktails if matches are found
+        return ResponseEntity.ok(response);
     }
 
-
-
-
+    /**
+     * Searches for cocktails that contain the partial specified ingredients and optional spirit types.
+     * Example 1: http://localhost:8080/api/cocktails/ingredients/partial?&ingredients=Lime&ingredients=Mint%20Leaves
+     *
+     * @param ingredients The list of ingredients to search for, required. Example: ["Lime", "Mint Leaves"].
+     * @param spirit_types The optional list of spirit types. Example: ["Rum"].
+     * @param page The page number for pagination (default is 0). Example: 0.
+     * @param size The page size for pagination (default is 10). Example: 10.
+     * @return A ResponseEntity containing a PaginatedResponseDTO with matching cocktails.
+     * @throws CustomException if no cocktails are found or if the ingredients list is empty.
+     */
     @GetMapping("/ingredients/partial")
-    public ResponseEntity<Object> searchWithPartialIngredients(
+    public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> searchWithPartialIngredients(
             @RequestParam List<String> ingredients,
-            @RequestParam(required = false) List<String> spirit_types) {
+            @RequestParam(required = false) List<String> spirit_types,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         // Validate the ingredients parameter
         if (ingredients == null || ingredients.isEmpty()) {
-            return ResponseEntity.badRequest().body("No ingredients provided.");
+            // Throw a CustomException if no ingredients are provided
+            throw new CustomException("Ingredients list cannot be empty");
+        }
+
+        // If spirit_types is null, default it to an empty list
+        if (spirit_types == null) {
+            spirit_types = new ArrayList<>();
         }
 
         // Normalize ingredients: remove spaces and convert to lowercase
         List<String> normalizedIngredients = ingredients.stream()
-                .map(ingredient -> ingredient.toLowerCase().replace(" ", ""))
+                .map(ingredient -> ingredient.toLowerCase().replace(" ", "")) // Remove spaces and convert to lowercase
                 .collect(Collectors.toList());
 
-        // Search for partial matches (at least 2 ingredients)
-        List<CocktailDTO> partialMatches = cocktailService.searchWithPartialIngredients(normalizedIngredients, spirit_types);
+        // Search for partial matches with pagination
+        PaginatedResponseDTO<CocktailDTO> response = cocktailService.searchWithPartialIngredients(
+                normalizedIngredients, spirit_types, page, size);
 
-        if (partialMatches.isEmpty()) {
-            return ResponseEntity.ok("No partial matches found for the provided ingredients.");
+        // Check if no results were found
+        if (response.getData().isEmpty()) {
+            // Throw a CustomException if no cocktails were found
+            throw new CustomException("No cocktails found for the provided partial ingredients");
         }
 
-        // Return the list of partial matches if found
-        return ResponseEntity.ok(partialMatches);
+        // Return the list of cocktails if matches are found
+        return ResponseEntity.ok(response);
     }
 
 

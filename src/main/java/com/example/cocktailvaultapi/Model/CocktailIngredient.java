@@ -8,60 +8,35 @@ public class CocktailIngredient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // Unique identifier for the cocktail ingredient relationship
 
     @ManyToOne
     @JoinColumn(name = "cocktail_id")
-    private Cocktail cocktail;
+    private Cocktail cocktail; // Reference to the Cocktail entity
 
     @ManyToOne
     @JoinColumn(name = "ingredient_id")
-    private Ingredient ingredient;
+    private Ingredient ingredient; // Reference to the Ingredient entity
 
-    private String quantity;
+    private String quantity; // The quantity of the ingredient used in the cocktail
 
     @ManyToOne
-    @JoinColumn(name = "spirit_type_id") // Establish a ManyToOne relationship
-    private SpiritType spiritType; // Change from Long to SpiritType
+    @JoinColumn(name = "spirit_type_id")
+    private SpiritType spiritType; // Reference to the SpiritType entity for the type of spirit used in the cocktail
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Cocktail getCocktail() {
-        return cocktail;
-    }
-
-    public void setCocktail(Cocktail cocktail) {
-        this.cocktail = cocktail;
-    }
-
+    /**
+     * Getters and setters
+     */
     public Ingredient getIngredient() {
         return ingredient;
-    }
-
-    public void setIngredient(Ingredient ingredient) {
-        this.ingredient = ingredient;
     }
 
     public String getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(String quantity) {
-        this.quantity = quantity;
-    }
-
     public SpiritType getSpiritType() {
-        return spiritType; // Getter for the spirit type
+        return spiritType;
     }
 
-    public void setSpiritType(SpiritType spiritType) {
-        this.spiritType = spiritType; // Setter for the spirit type
-    }
 }

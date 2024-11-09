@@ -1,6 +1,7 @@
 package com.example.cocktailvaultapi.Repository;
 
 import com.example.cocktailvaultapi.Model.Cocktail;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,35 +14,87 @@ import java.util.Optional;
 @Repository
 public interface CocktailRepository extends JpaRepository<Cocktail, Long> {
 
-    // Custom query method
-    Optional<Cocktail> findByNameIgnoreCase(String name); // Search for cocktails by name
-    List<Cocktail> findByNameStartingWithIgnoreCase(String letter); // List all cocktails starting with a specific letter
+    //TODO
+    // Få alla case insesetive
+
+    /**
+     * Search for a cocktail by its name, ignoring case.
+     * @param name the name of the cocktail to search for.
+     * @param pageable the pagination information (page number, page size, sorting).
+     * @return an Optional containing the found cocktail, if any.
+     */
+    @Query("SELECT c FROM Cocktail c WHERE REPLACE(LOWER(c.name), ' ', '') LIKE REPLACE(LOWER(:name), ' ', '')")
+    Page<Cocktail> findByNameIgnoreCaseAndSpaceInsensitive(@Param("name") String name, Pageable pageable);
+
+
+    /**
+     * List all cocktails whose names start with a specific letter, ignoring case.
+     * @param letter the starting letter to filter cocktails by.
+     * @param pageable the pagination information (page number, page size, sorting).
+     * @return a list of cocktails that start with the specified letter.
+     */
+    Page<Cocktail> findByNameStartingWithIgnoreCase(String letter,Pageable pageable); // List all cocktails starting with a specific letter
+
+    /**
+     * Get a random cocktail from the database.
+     * @return an Optional containing a randomly selected cocktail.
+     */
     @Query(value = "SELECT * FROM cocktails ORDER BY RANDOM() LIMIT 1", nativeQuery = true)
     Optional<Cocktail> getRandomCocktail(); // Get a random cocktail
-    @Query("SELECT c FROM Cocktail c ORDER BY c.createdDate DESC")
-    List<Cocktail> findLatestCocktails(Pageable pageable);// List the latest cocktails added
 
-
-    List<Cocktail> findBySpiritBrandIgnoreCase(String brand); // Get recipes by specific spirit brand (e.g., Absolut)
-    @Query("SELECT c FROM Cocktail c JOIN c.cocktailSpirits cs JOIN cs.spiritType st WHERE LOWER(st.name) = LOWER(:spiritType)")
-    List<Cocktail> findBySpiritTypeIgnoreCaseAndSpaces(@Param("spiritType") String spiritType); // Search cocktails by spirit type
-    @Query("SELECT c FROM Cocktail c JOIN c.glassType g WHERE LOWER(REPLACE(g.name, ' ', '')) = LOWER(REPLACE(:glassType, ' ', ''))")
-    List<Cocktail> findByGlassTypeIgnoreCaseAndSpaces(@Param("glassType") String glassType); // Filter cocktails by glass type
-
-
-
-    //TODO
-    // Gör så att den hämtar halvfärdiga cocktails
-
-    @Query("SELECT c FROM Cocktail c " + "JOIN c.cocktailIngredients ci " + "JOIN ci.ingredient i " + "WHERE LOWER(REPLACE(i.name, ' ', '')) = LOWER(REPLACE(:ingredientName, ' ', ''))")
-    List<Cocktail> findCocktailsByIngredientNameIgnoreCaseAndSpaces(@Param("ingredientName") String ingredientName);
-
-
-    // Repository Layer: Query for exact ingredient matches (no extras)
     /**
-     * Finds cocktails that contain exactly the specified ingredients.
-     * @param ingredients List of normalized ingredient names (lowercase, no spaces).
-     * @return List of matching cocktails.
+     * Retrieve the latest cocktails added to the database, sorted by creation date.
+     * @param pageable the pagination information.
+     * @return a list of the latest cocktails.
+     */
+    @Query("SELECT c FROM Cocktail c ORDER BY c.createdDate DESC")
+    Page<Cocktail> findLatestCocktails(Pageable pageable); // List the latest cocktails added
+
+    /**
+     * Find cocktails based on a specific spirit brand, ignoring case.
+     * @param brand the spirit brand to filter by (e.g., "Absolut").
+     * @param pageable the pagination information (page number, page size, sorting).
+     * @return a list of cocktails containing the specified spirit brand.
+     */
+    Page<Cocktail> findBySpiritBrandIgnoreCase(String brand,Pageable pageable); // Get recipes by specific spirit brand (e.g., Absolut)
+
+    /**
+     * Search for cocktails by their spirit type, ignoring case and spaces in the spirit type name.
+     * @param spiritType the spirit type to filter cocktails by (e.g., "Vodka").
+     * @param pageable the pagination information (page number, page size, sorting).
+     * @return a list of cocktails containing the specified spirit type.
+     */
+    @Query("SELECT c FROM Cocktail c JOIN c.cocktailSpirits cs JOIN cs.spiritType st WHERE LOWER(st.name) = LOWER(:spiritType)")
+    Page<Cocktail> findBySpiritTypeIgnoreCaseAndSpaces(@Param("spiritType") String spiritType, Pageable pageable); // Search cocktails by spirit type
+
+    /**
+     * Filter cocktails based on their glass type, ignoring case and spaces in the glass type name.
+     * @param glassType the glass type to filter cocktails by (e.g., "Martini glass").
+     * @param pageable the pagination information (page number, page size, sorting).
+     * @return a list of cocktails that use the specified glass type.
+     */
+    @Query("SELECT c FROM Cocktail c JOIN c.glassType g WHERE LOWER(REPLACE(g.name, ' ', '')) = LOWER(REPLACE(:glassType, ' ', ''))")
+    Page<Cocktail> findByGlassTypeIgnoreCaseAndSpaces(@Param("glassType") String glassType, Pageable pageable); // Filter cocktails by glass type
+
+    /**
+     * Find cocktails containing a specific ingredient, ignoring case and spaces in the ingredient name.
+     * @param ingredientName the ingredient name to filter cocktails by (e.g., "Lime").
+     * @param pageable the pagination information (page number, page size, sorting).
+     * @return a list of cocktails that contain the specified ingredient.
+     */
+    @Query("SELECT c FROM Cocktail c " + "JOIN c.cocktailIngredients ci " + "JOIN ci.ingredient i " + "WHERE LOWER(REPLACE(i.name, ' ', '')) = LOWER(REPLACE(:ingredientName, ' ', ''))")
+    Page<Cocktail>findCocktailsByIngredientNameIgnoreCaseAndSpaces(@Param("ingredientName") String ingredientName, Pageable pageable);
+
+
+
+    /**
+     * Retrieves cocktails that contain only the specified ingredients, with no additional ingredients.
+     * Ingredients types are provided as comma-separated, normalized list.
+     * The cocktails must exactly match the provided ingredients, but they do not have to include every specified ingredient or spirit.
+     *
+     * @param ingredients Comma-separated, normalized list of ingredient names.
+     * @param pageable Pagination information to manage the size and number of results.
+     * @return A paginated list of cocktails that match the exact specified ingredients and spirits.
      */
     @Query("SELECT DISTINCT c FROM Cocktail c " +
             "JOIN c.cocktailIngredients ci " +
@@ -56,12 +109,19 @@ public interface CocktailRepository extends JpaRepository<Cocktail, Long> {
             "WHERE ci2.cocktail.cocktailId = c.cocktailId " +
             "AND ci2.ingredient IS NOT NULL)"
     )
-    List<Cocktail> findCocktailsWithExactIngredients(List<String> ingredients);
+    Page<Cocktail> findCocktailsWithExactIngredients(List<String> ingredients,Pageable pageable);
 
 
-
-    // Repository Layer: Query for exact matches for both ingredients and spirits (no extras)
-    // The cocktails need to contain exactly the ingredients you provide (but not necessarily all of them),
+    /**
+     * Retrieves cocktails that contain only the specified ingredients and spirit types, with no additional ingredients or spirits.
+     * Ingredients and spirit types are provided as comma-separated, normalized lists.
+     * The cocktails must exactly match the provided ingredients and spirit types, but they do not have to include every specified ingredient or spirit.
+     *
+     * @param ingredients Comma-separated, normalized list of ingredient names.
+     * @param spiritTypes Comma-separated, normalized list of spirit types.
+     * @param pageable Pagination information to manage the size and number of results.
+     * @return A paginated list of cocktails that match the exact specified ingredients and spirits.
+     */
     @Query(value = """
 WITH available_ingredients AS (
     SELECT ingredient_id
@@ -112,14 +172,19 @@ FROM (
 ) AS combined_results
 ORDER BY combined_results.name
 """, nativeQuery = true)
-    List<Cocktail> findByExactIngredientsAndSpirits(
+    Page<Cocktail> findByExactIngredientsAndSpirits(
             @Param("ingredients") String ingredients,
-            @Param("spiritTypes") String spiritTypes);
+            @Param("spiritTypes") String spiritTypes,Pageable pageable);
 
 
-//==================================================================================================
-
-    // Repository Layer: Query for partial ingredient matches (at least 2 ingredients)
+    /**
+     * Retrieves cocktails that match at least 50% of the specified ingredients.
+     * Ingredients are provided as a comma-separated, normalized list.
+     *
+     * @param ingredients Comma-separated, normalized list of ingredient names.
+     * @param pageable Pagination information to manage the size and number of results.
+     * @return A paginated list of cocktails that match at least 50% of the provided ingredients.
+     */
     @Query(value = """
 WITH available_ingredients AS (
     SELECT ingredient_id
@@ -151,19 +216,18 @@ FROM cocktails c
 JOIN matching_cocktails mc ON c.cocktail_id = mc.cocktail_id
 ORDER BY c.name;
 """, nativeQuery = true)
-    List<Cocktail> findByPartialIngredients(@Param("ingredients") String ingredients);
+    Page<Cocktail> findByPartialIngredients(@Param("ingredients") String ingredients,Pageable pageable);
 
 
-
-
-
-
-
-
-
-
-
-    // Repository Layer: Query for partial ingredient and spirit matches
+    /**
+     * Retrieves cocktails that match at least 50% of the specified ingredients and, if provided, spirits.
+     * Ingredients and spirits are provided as comma-separated, normalized lists.
+     *
+     * @param ingredients Comma-separated, normalized list of ingredient names.
+     * @param spirits Comma-separated, normalized list of spirit types.
+     * @param pageable Pagination information to manage the size and number of results.
+     * @return A paginated list of cocktails that match at least 50% of the specified ingredients and spirits.
+     */
     @Query(value = """
 WITH available_ingredients AS (
     SELECT ingredient_id
@@ -231,9 +295,6 @@ FROM (
 ) AS combined_results
 ORDER BY combined_results.name
 """, nativeQuery = true)
-    List<Cocktail> findByPartialIngredientsAndSpirits(@Param("ingredients") String ingredients, @Param("spiritTypes") String spirits);
-
-
-
+    Page<Cocktail> findByPartialIngredientsAndSpirits(@Param("ingredients") String ingredients, @Param("spiritTypes") String spirits,Pageable pageable);
 
 }

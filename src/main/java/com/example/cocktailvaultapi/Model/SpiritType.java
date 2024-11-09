@@ -8,18 +8,14 @@ public class SpiritType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long spiritTypeId;
+    private Long spiritTypeId; // Unique identifier for the spirit type
 
     @Column(nullable = false, length = 50)
-    private String name;
+    private String name; // Name of the spirit type (e.g., "Vodka", "Rum")
 
-    public Long getSpiritTypeId() {
-        return spiritTypeId;
-    }
-
-    public void setSpiritTypeId(Long spiritTypeId) {
-        this.spiritTypeId = spiritTypeId;
-    }
+    /**
+     * Getters and setters
+     */
 
     public String getName() {
         return name;
@@ -28,6 +24,4 @@ public class SpiritType {
     public void setName(String name) {
         this.name = name;
     }
-
-    // Getters and Setters
 }

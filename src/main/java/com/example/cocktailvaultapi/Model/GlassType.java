@@ -10,19 +10,14 @@ public class GlassType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long glassTypeId;
+    private Long glassTypeId; // Unique identifier for the glass type
 
     @Column(nullable = false, length = 50)
-    private String name;
+    private String name; // Name of the glass type (e.g., "Martini Glass")
 
-    public Long getGlassTypeId() {
-        return glassTypeId;
-    }
-
-    public void setGlassTypeId(Long glassTypeId) {
-        this.glassTypeId = glassTypeId;
-    }
-
+    /**
+     * Getters and setters
+     */
     public String getName() {
         return name;
     }
@@ -31,5 +26,4 @@ public class GlassType {
         this.name = name;
     }
 
-    // Getters and Setters
 }

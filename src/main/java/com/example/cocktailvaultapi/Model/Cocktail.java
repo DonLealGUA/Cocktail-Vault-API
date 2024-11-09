@@ -11,56 +11,53 @@ public class Cocktail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cocktail_id")
-    private Long cocktailId;
+    private Long cocktailId; // Unique identifier for the cocktail
 
     @Column(name = "name", nullable = false, length = 100)
-    private String name;
+    private String name; // Name of the cocktail
 
     @Column(name = "instructions", columnDefinition = "TEXT")
-    private String instructions;
+    private String instructions; // Preparation instructions for the cocktail
 
     @ManyToOne
-    @JoinColumn(name = "glass_type_id") // The 'glass_type_id' column in the cocktail table
-    private GlassType glassType; // This should reference the GlassType entity
+    @JoinColumn(name = "glass_type_id")
+    private GlassType glassType; // Reference to the GlassType entity for the type of glass used
 
     @OneToMany(mappedBy = "cocktail", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CocktailSpirit> cocktailSpirits;
+    private List<CocktailSpirit> cocktailSpirits; // List of spirits used in the cocktail
 
     @Column(name = "image_url", length = 255)
-    private String imageUrl;
+    private String imageUrl; // URL for the cocktail's image
 
     @OneToMany(mappedBy = "cocktail", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CocktailIngredient> cocktailIngredients;
+    private List<CocktailIngredient> cocktailIngredients; // List of ingredients used in the cocktail
 
     @Column(name = "created_by")
-    private String createdBy;
+    private String createdBy; // The person who created the cocktail recipe
 
     @Column(name = "ice_form")
-    private String IceForm;
-
+    private String IceForm; // Type of ice used in the cocktail (e.g., crushed, cubes)
 
     @Column(name = "created_by_link", nullable = true, length = 100)
-    private String createdByLink;
+    private String createdByLink; // Link to the source or creator's profile
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_date", nullable = false, updatable = false)
-    private Date createdDate;
+    private Date createdDate; // Date and time when the cocktail was created
 
     @Column(name = "spirit_brand", nullable = true, length = 100)
-    private String spiritBrand = "None";
+    private String spiritBrand = "None"; // The brand of spirit used in the cocktail (default is "None")
 
     @PrePersist
     public void prePersist() {
         this.createdDate = new Date();
     }
 
-    // Getters and setters
+    /**
+     * Getters and setters
+     */
     public Long getCocktailId() {
         return cocktailId;
-    }
-
-    public void setCocktailId(Long id) {
-        this.cocktailId = id;
     }
 
     public String getName() {
@@ -75,79 +72,36 @@ public class Cocktail {
         return instructions;
     }
 
-    public void setInstructions(String instructions) {
-        this.instructions = instructions;
-    }
-
     public GlassType getGlassType() {
         return glassType;
-    }
-
-    public void setGlassType(GlassType glassType) {
-        this.glassType = glassType;
-    }
-
-    public List<CocktailSpirit> getCocktailSpirits() {
-        return cocktailSpirits;
-    }
-
-    public void setCocktailSpirits(List<CocktailSpirit> cocktailSpirits) {
-        this.cocktailSpirits = cocktailSpirits;
     }
 
     public String getImageUrl() {
         return imageUrl;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
     public List<CocktailIngredient> getCocktailIngredients() {
         return cocktailIngredients;
-    }
-
-    public void setCocktailIngredients(List<CocktailIngredient> cocktailIngredients) {
-        this.cocktailIngredients = cocktailIngredients;
     }
 
     public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public Date getCreatedDate() {
         return createdDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
     }
 
     public String getSpiritBrand() {
         return spiritBrand;
     }
 
-    public void setSpiritBrand(String spiritBrand) {
-        this.spiritBrand = spiritBrand;
-    }
-
     public String getCreatedByLink() {
         return createdByLink;
-    }
-
-    public void setCreatedByLink(String createdByLink) {
-        this.createdByLink = createdByLink;
     }
 
     public String getIceForm() {
         return IceForm;
     }
 
-    public void setIceForm(String iceForm) {
-        IceForm = iceForm;
-    }
 }
