@@ -16,5 +16,12 @@ public class IngredientDTO {
         this.name = name;
     }
 
+    public String getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(String quantity) {
+        this.quantity = quantity;
+    }
 }
 

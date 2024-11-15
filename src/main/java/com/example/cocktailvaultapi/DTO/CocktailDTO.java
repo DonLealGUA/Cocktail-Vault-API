@@ -83,4 +83,47 @@ public class CocktailDTO {
         this.iceForm = iceForm;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getInstructions() {
+        return instructions;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public String getGlassType() {
+        return glassType;
+    }
+
+    public List<String> getSpiritTypes() {
+        return spiritTypes;
+    }
+
+    public List<CocktailIngredientDTO> getIngredients() {
+        return ingredients;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public String getCreatedByLink() {
+        return createdByLink;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public String getSpiritBrand() {
+        return spiritBrand;
+    }
+
+    public String getIceForm() {
+        return iceForm;
+    }
 }

@@ -28,4 +28,8 @@ public class CocktailIngredientDTO {
     public void setSpiritTypeName(String spiritTypeName) {
         this.spiritTypeName = spiritTypeName; // Ensure this method is correctly defined
     }
+
+    public String getQuantity() {
+        return quantity;
+    }
 }

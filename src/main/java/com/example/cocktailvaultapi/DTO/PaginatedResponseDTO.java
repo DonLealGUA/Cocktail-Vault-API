@@ -38,4 +38,20 @@ public class PaginatedResponseDTO <T> {
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }
+
+    public long getTotalItems() {
+        return totalItems;
+    }
+
+    public int getTotalPages() {
+        return totalPages;
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
 }
