@@ -54,6 +54,18 @@ public class CocktailController {
     }
 
     /**
+     * Returns the amount of Cocktails
+     * Example: http://localhost:8080/api/cocktails/count
+     *
+     * @return A string of the total cocktails in the DB.
+     */
+    @GetMapping("/count")
+    public String getCocktailCount() {
+
+        return cocktailService.getCocktailCount();
+    }
+
+    /**
      * Returns a paginated list of all cocktails.
      * If no results are found for the given page and size, throws a CustomException.
      * Example: http://localhost:8080/api/cocktails/page?page=0&size=10
@@ -119,6 +131,22 @@ public class CocktailController {
         }
         return ResponseEntity.ok(cocktail);
     }
+
+    @GetMapping("/multirandom/{amount}")
+    public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> getMultipleRandCocktails(
+            @PathVariable("amount") String amount,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PaginatedResponseDTO<CocktailDTO> response = cocktailService.getMultipleRandCocktails(amount,page, size);
+
+        if (response.getData().isEmpty()) {
+            throw new CustomException("No cocktails found with the name: " + amount);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
 
     /**
      * Returns a paginated list of cocktails by name.

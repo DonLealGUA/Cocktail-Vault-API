@@ -41,6 +41,12 @@ public class CocktailServiceImpl implements CocktailService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public String getCocktailCount() {
+        return cocktailRepository.countTotalCocktails();
+    }
+
+
     /**
      * Retrieves a paginated list of all cocktail recipes.
      *
@@ -79,6 +85,22 @@ public class CocktailServiceImpl implements CocktailService {
         return randomCocktailOptional.map(cocktail -> ResponseEntity.ok(convertToDTO(cocktail)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @Override
+    public PaginatedResponseDTO<CocktailDTO> getMultipleRandCocktails(String amount, int page, int size) {
+        int total = Integer.parseInt(amount);
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Cocktail> paginatedCocktails = cocktailRepository.getMultiRandCocktails(pageable);
+
+        pageable = PageRequest.of(page, total);
+        paginatedCocktails = cocktailRepository.getMultiRandCocktails(pageable);
+        return getPaginatedResponse(paginatedCocktails, page, size);
+    }
+
+
+
     /**
      * Retrieves a paginated list of cocktails based on a name search.
      * The search is case-insensitive and ignores spaces in the name.
@@ -174,13 +196,9 @@ public class CocktailServiceImpl implements CocktailService {
      */
     @Override
     public PaginatedResponseDTO<CocktailDTO> searchBySpecificIngredient(String ingredient, int page, int size) {
-        // Create a Pageable object for pagination
         Pageable pageable = PageRequest.of(page, size);
-
-        // Fetch the paginated list of cocktails by ingredient (case-insensitive and space-insensitive)
         Page<Cocktail> paginatedCocktails = cocktailRepository.findCocktailsByIngredientNameIgnoreCaseAndSpaces(ingredient, pageable);
 
-        // Return a paginated response
         return getPaginatedResponse(paginatedCocktails, page, size);
     }
 
@@ -196,14 +214,11 @@ public class CocktailServiceImpl implements CocktailService {
      */
     @Override
     public PaginatedResponseDTO<CocktailDTO> searchWithExactIngredients(List<String> ingredients, List<String> spirits, int page, int size) {
-        // Transform ingredients and spirits to lowercase and remove spaces
-        ingredients = transformList(ingredients);  // Valid ingredients without spaces and in lowercase
-        spirits = prepareList(spirits);  // Handle spirits list with null check
+        ingredients = transformList(ingredients);
+        spirits = prepareList(spirits);
 
-        // Create a Pageable object for pagination
         Pageable pageable = PageRequest.of(page, size);
 
-        // Fetch cocktails based on exact ingredients and spirits match
         Page<Cocktail> paginatedCocktails;
         if (!spirits.isEmpty()) {
             String ingredientsString = convertListToStringWithQuotes(ingredients);
@@ -213,7 +228,6 @@ public class CocktailServiceImpl implements CocktailService {
             paginatedCocktails = cocktailRepository.findCocktailsWithExactIngredients(ingredients, pageable);
         }
 
-        // Return a paginated response
         return getPaginatedResponse(paginatedCocktails, page, size);
     }
 
@@ -229,18 +243,14 @@ public class CocktailServiceImpl implements CocktailService {
      */
     @Override
     public PaginatedResponseDTO<CocktailDTO> searchWithPartialIngredients(List<String> ingredients, List<String> spirits, int page, int size) {
-        // Transform ingredients and spirit types to lowercase and remove spaces
-        ingredients = transformList(ingredients);  // Valid ingredients without spaces and in lowercase
-        spirits = prepareList(spirits);  // Handle spirits list with null check
+        ingredients = transformList(ingredients);
+        spirits = prepareList(spirits);
 
-        // Convert lists to formatted strings for repository query
         String ingredientsString = convertListToStringWithQuotes(ingredients);
         String spiritsString = convertListToStringWithQuotes(spirits);
 
-        // Create a Pageable object for pagination
         Pageable pageable = PageRequest.of(page, size);
 
-        // Fetch cocktails based on partial ingredients and spirits match
         Page<Cocktail> paginatedCocktails;
         if (!spirits.isEmpty()) {
             paginatedCocktails = cocktailRepository.findByPartialIngredientsAndSpirits(ingredientsString, spiritsString, pageable);
@@ -248,9 +258,10 @@ public class CocktailServiceImpl implements CocktailService {
             paginatedCocktails = cocktailRepository.findByPartialIngredients(ingredientsString, pageable);
         }
 
-        // Return a paginated response
         return getPaginatedResponse(paginatedCocktails, page, size);
     }
+
+
 
     /**
      * Prepares a list of strings by transforming them to lowercase and removing spaces.
@@ -272,12 +283,10 @@ public class CocktailServiceImpl implements CocktailService {
      * @return A PaginatedResponseDTO containing the CocktailDTOs and pagination information.
      */
     private PaginatedResponseDTO<CocktailDTO> getPaginatedResponse(Page<Cocktail> paginatedCocktails, int page, int size) {
-        // Map the Cocktail entities to DTOs
         List<CocktailDTO> cocktails = paginatedCocktails.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
-        // Create and return the PaginatedResponseDTO
         PaginatedResponseDTO<CocktailDTO> response = new PaginatedResponseDTO<>();
         response.setData(cocktails);
         response.setTotalItems(paginatedCocktails.getTotalElements());
@@ -297,8 +306,8 @@ public class CocktailServiceImpl implements CocktailService {
      */
     private List<String> transformList(List<String> list) {
         return list.stream()
-                .map(s -> s.trim().toLowerCase().replaceAll("\\s+", "")) // Trim, convert to lowercase, and remove spaces
-                .collect(Collectors.toList()); // Collect results into a list
+                .map(s -> s.trim().toLowerCase().replaceAll("\\s+", ""))
+                .collect(Collectors.toList());
     }
 
 
@@ -309,7 +318,7 @@ public class CocktailServiceImpl implements CocktailService {
      * @return A single string containing all items joined by commas.
      */
     public String convertListToStringWithQuotes(List<String> items) {
-        return String.join(",", items); // Join list items with a comma separator and return as a single string
+        return String.join(",", items);
     }
 
 
@@ -322,54 +331,46 @@ public class CocktailServiceImpl implements CocktailService {
     private CocktailDTO convertToDTO(Cocktail cocktail) {
         CocktailDTO dto = new CocktailDTO();
 
-        // Set basic properties
         dto.setId(cocktail.getCocktailId());
         dto.setName(cocktail.getName());
         dto.setInstructions(cocktail.getInstructions());
         dto.setImageUrl(cocktail.getImageUrl());
         dto.setIceForm(cocktail.getIceForm());
 
-        // Set glass type name if available
         if (cocktail.getGlassType() != null) {
             dto.setGlassType(cocktail.getGlassType().getName());
         }
 
-        // Extract and set spirit types (distinct list)
         List<String> spiritTypes = cocktail.getCocktailIngredients().stream()
                 .filter(ci -> ci.getSpiritType() != null)
                 .map(ci -> ci.getSpiritType().getName())
-                .distinct() // Ensure no duplicates
+                .distinct()
                 .collect(Collectors.toList());
-        dto.setSpiritTypes(spiritTypes); // Set distinct spirit types in DTO
+        dto.setSpiritTypes(spiritTypes);
 
-        // Extract and set ingredients (names and quantities)
         List<CocktailIngredientDTO> ingredientDTOs = cocktail.getCocktailIngredients().stream()
                 .map(ci -> {
                     CocktailIngredientDTO cocktailIngredientDTO = new CocktailIngredientDTO();
 
-                    // Set spirit type name if present
                     if (ci.getSpiritType() != null) {
                         cocktailIngredientDTO.setSpiritTypeName(ci.getSpiritType().getName());
                     }
 
-                    // If spirit type is null, set ingredient name
                     if (ci.getSpiritType() == null && ci.getIngredient() != null) {
                         cocktailIngredientDTO.setIngredientName(ci.getIngredient().getName());
                     }
 
                     cocktailIngredientDTO.setQuantity(ci.getQuantity());
 
-                    // Ensure ingredient name is null if it wasn't set
                     if (cocktailIngredientDTO.getIngredientName() == null && cocktailIngredientDTO.getSpiritTypeName() != null) {
-                        cocktailIngredientDTO.setIngredientName(null); // Explicitly set to null
+                        cocktailIngredientDTO.setIngredientName(null);
                     }
 
                     return cocktailIngredientDTO;
                 })
                 .collect(Collectors.toList());
-        dto.setIngredients(ingredientDTOs); // Set the list of ingredients in DTO
-
-        // Set additional fields
+        dto.setIngredients(ingredientDTOs);
+        
         dto.setCreatedBy(cocktail.getCreatedBy());
         dto.setCreatedByLink(cocktail.getCreatedByLink());
         dto.setCreatedDate(cocktail.getCreatedDate());

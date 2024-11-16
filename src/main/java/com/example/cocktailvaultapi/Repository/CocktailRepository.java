@@ -28,6 +28,12 @@ public interface CocktailRepository extends JpaRepository<Cocktail, Long> {
 
 
     /**
+     * Returns the amount of cocktails in DB
+     */
+    @Query("select COUNT(*) from Cocktail")
+    String countTotalCocktails();
+
+    /**
      * List all cocktails whose names start with a specific letter, ignoring case.
      * @param letter the starting letter to filter cocktails by.
      * @param pageable the pagination information (page number, page size, sorting).
@@ -41,6 +47,11 @@ public interface CocktailRepository extends JpaRepository<Cocktail, Long> {
      */
     @Query(value = "SELECT * FROM cocktails ORDER BY RANDOM() LIMIT 1", nativeQuery = true)
     Optional<Cocktail> getRandomCocktail(); // Get a random cocktail
+
+    @Query("SELECT c FROM Cocktail c ORDER BY RANDOM()")
+    Page<Cocktail> getMultiRandCocktails(Pageable pageable);
+
+
 
     /**
      * Retrieve the latest cocktails added to the database, sorted by creation date.
@@ -296,5 +307,6 @@ FROM (
 ORDER BY combined_results.name
 """, nativeQuery = true)
     Page<Cocktail> findByPartialIngredientsAndSpirits(@Param("ingredients") String ingredients, @Param("spiritTypes") String spirits,Pageable pageable);
+
 
 }

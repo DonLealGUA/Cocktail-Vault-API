@@ -19,6 +19,8 @@ public interface CocktailService {
      */
     List<CocktailDTO> searchAllCocktailsRecipes();
 
+    String getCocktailCount();
+
     /**
      * Retrieves a paginated list of cocktail recipes with a specified page number and page size.
      * Useful for displaying large numbers of cocktails in a paginated format.
@@ -136,4 +138,7 @@ public interface CocktailService {
      * @return A list of CocktailDTO representing cocktails that match the specified ingredients and spirits.
      */
     PaginatedResponseDTO<CocktailDTO> searchWithPartialIngredients(List<String> normalizedIngredients, List<String> spirits,int page, int size);
+
+
+    PaginatedResponseDTO<CocktailDTO> getMultipleRandCocktails(String amount, int page, int size);
 }
