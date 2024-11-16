@@ -11,8 +11,6 @@ public class CocktailDTO {
     private String glassType;
     private List<String> spiritTypes;
     private List<CocktailIngredientDTO> ingredients;
-    private String createdBy;
-    private String createdByLink;
     private Date createdDate;
     private String spiritBrand;
     private String iceForm;
@@ -58,17 +56,6 @@ public class CocktailDTO {
         this.ingredients = ingredients;
     }
 
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-
-    public void setCreatedByLink(String createdByLink) {
-        this.createdByLink = createdByLink;
-    }
-
-
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
@@ -105,14 +92,6 @@ public class CocktailDTO {
 
     public List<CocktailIngredientDTO> getIngredients() {
         return ingredients;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public String getCreatedByLink() {
-        return createdByLink;
     }
 
     public Date getCreatedDate() {

@@ -32,14 +32,9 @@ public class Cocktail {
     @OneToMany(mappedBy = "cocktail", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CocktailIngredient> cocktailIngredients; // List of ingredients used in the cocktail
 
-    @Column(name = "created_by")
-    private String createdBy; // The person who created the cocktail recipe
-
     @Column(name = "ice_form")
     private String IceForm; // Type of ice used in the cocktail (e.g., crushed, cubes)
 
-    @Column(name = "created_by_link", nullable = true, length = 100)
-    private String createdByLink; // Link to the source or creator's profile
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_date", nullable = false, updatable = false)
@@ -84,20 +79,12 @@ public class Cocktail {
         return cocktailIngredients;
     }
 
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
     public Date getCreatedDate() {
         return createdDate;
     }
 
     public String getSpiritBrand() {
         return spiritBrand;
-    }
-
-    public String getCreatedByLink() {
-        return createdByLink;
     }
 
     public String getIceForm() {

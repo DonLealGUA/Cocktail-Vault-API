@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7e75fc88-48eb-4a51-b441-a93be4ddf537" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/cocktailvaultapi/Controller/CocktailController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/cocktailvaultapi/Controller/CocktailController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/cocktailvaultapi/Repository/CocktailRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/cocktailvaultapi/Repository/CocktailRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/cocktailvaultapi/Service/CocktailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/cocktailvaultapi/Service/CocktailService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/cocktailvaultapi/DTO/CocktailDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/cocktailvaultapi/DTO/CocktailDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/cocktailvaultapi/Model/Cocktail.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/cocktailvaultapi/Model/Cocktail.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/cocktailvaultapi/Service/Implement/CocktailServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/cocktailvaultapi/Service/Implement/CocktailServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

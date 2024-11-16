@@ -370,9 +370,7 @@ public class CocktailServiceImpl implements CocktailService {
                 })
                 .collect(Collectors.toList());
         dto.setIngredients(ingredientDTOs);
-        
-        dto.setCreatedBy(cocktail.getCreatedBy());
-        dto.setCreatedByLink(cocktail.getCreatedByLink());
+
         dto.setCreatedDate(cocktail.getCreatedDate());
         dto.setSpiritBrand(cocktail.getSpiritBrand());
 
