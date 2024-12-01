@@ -3,8 +3,13 @@ FROM maven:latest AS build
 
 WORKDIR /app
 
-# Copy the pom.xml and source code
+# Copy only the pom.xml first to leverage Docker cache for dependencies
 COPY pom.xml .
+
+# Download dependencies to cache them in a layer
+RUN mvn dependency:go-offline
+
+# Copy the source code
 COPY src ./src
 
 # Build the JAR file using Maven (this will create the target/ directory inside the container)
