@@ -5,13 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7e75fc88-48eb-4a51-b441-a93be4ddf537" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cc14870c-3d3e-4c7c-9e11-229f83a80f25.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cc14870c-3d3e-4c7c-9e11-229f83a80f25.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,6 +68,10 @@
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\krist\IdeaProjects\CocktailVaultAPI\src\main\java\com\example\cocktailvaultapi" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\krist\Documents\GitHub\Cocktail-Vault-API\target" />
+      <recent name="C:\Users\krist\Documents\GitHub\Cocktail-Vault-API" />
     </key>
   </component>
   <component name="RunManager" selected="Spring Boot.CocktailVaultApiApplication">
@@ -177,7 +176,7 @@
       <workItem from="1733080522113" duration="1442000" />
       <workItem from="1733082370877" duration="594000" />
       <workItem from="1733082978067" duration="135000" />
-      <workItem from="1733083126475" duration="3059000" />
+      <workItem from="1733083126475" duration="4498000" />
     </task>
     <servers />
   </component>
