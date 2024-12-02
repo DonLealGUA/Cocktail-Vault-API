@@ -34,7 +34,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://MixItRight.com"));  // Allow only your website's domain
+        configuration.setAllowedOrigins(List.of("http://localhost:3000/","https://MixItRight.com"));  // Allow only your website's domain
         configuration.setAllowedMethods(Arrays.asList("GET"));  // Allow only GET requests
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));  // Allow specific headers if needed
 
