@@ -44,6 +44,7 @@ public class CocktailController {
      * @return A list of all cocktails.
      * @throws CustomException if no cocktails are found.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping
     public List<CocktailDTO> getAllCocktails() {
         List<CocktailDTO> cocktails = cocktailService.searchAllCocktailsRecipes();
@@ -59,6 +60,7 @@ public class CocktailController {
      *
      * @return A string of the total cocktails in the DB.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/count")
     public String getCocktailCount() {
 
@@ -75,6 +77,7 @@ public class CocktailController {
      * @return A paginated list of cocktails.
      * @throws CustomException if no cocktails are found for the given page and size.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/page")
     public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> getAllCocktailsPageLimit(
             @RequestParam(defaultValue = "0") int page,
@@ -101,6 +104,7 @@ public class CocktailController {
      * @return A paginated list of the latest cocktails.
      * @throws CustomException if no latest cocktails are found.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/latest")
     public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> listLatestCocktails(
             @RequestParam(defaultValue = "0") int page,
@@ -123,6 +127,7 @@ public class CocktailController {
      * @return A random cocktail.
      * @throws CustomException if no random cocktail is found.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/random")
     public ResponseEntity<CocktailDTO> getRandomCocktail() {
         CocktailDTO cocktail = cocktailService.getRandomCocktail().getBody();
@@ -132,6 +137,7 @@ public class CocktailController {
         return ResponseEntity.ok(cocktail);
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/multirandom/{amount}")
     public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> getMultipleRandCocktails(
             @PathVariable("amount") String amount,
@@ -159,6 +165,7 @@ public class CocktailController {
      * @return A paginated list of cocktails matching the name.
      * @throws CustomException if no cocktails are found with the given name.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/{name}")
     public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> getCocktailByName(
             @PathVariable("name") String name,
@@ -186,6 +193,7 @@ public class CocktailController {
      * @return A paginated list of cocktails starting with the given letter.
      * @throws CustomException if the letter is invalid or no cocktails are found with the given letter.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/by-letter/{letter}")
     public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> listCocktailsByFirstLetter(
             @PathVariable("letter") char letter,
@@ -217,6 +225,7 @@ public class CocktailController {
      * @return A paginated list of cocktails filtered by spirit brand.
      * @throws CustomException if no cocktails are found for the given brand.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/filter/brand/{brand}")
     public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> getCocktailsBySpiritBrand(
             @PathVariable("brand") String brand,
@@ -243,6 +252,7 @@ public class CocktailController {
      * @return A paginated list of cocktails filtered by spirit type.
      * @throws CustomException if no cocktails are found for the given spirit type.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/filter/spirit/{spirit}")
     public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> filterBySpiritType(
             @PathVariable("spirit") String spiritType,
@@ -269,6 +279,7 @@ public class CocktailController {
      * @return A paginated list of cocktails filtered by glass type.
      * @throws CustomException if no cocktails are found for the given glass type.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/filter/glass/{glassType}")
     public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> filterByGlassType(
             @PathVariable("glassType") String glassType,
@@ -295,6 +306,7 @@ public class CocktailController {
      * @return A paginated list of cocktails containing the given ingredient.
      * @throws CustomException if no cocktails are found with the given ingredient.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/filter/ingredient/{ingredient}")
     public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> searchBySpecificIngredient(
             @PathVariable("ingredient") String ingredient,
@@ -322,6 +334,7 @@ public class CocktailController {
      * @return A ResponseEntity containing a PaginatedResponseDTO with matching cocktails.
      * @throws CustomException if no cocktails are found or if the ingredients list is empty.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/ingredients/exact")
     public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> searchWithExactIngredients(
             @RequestParam List<String> ingredients,
@@ -364,6 +377,7 @@ public class CocktailController {
      * @return A ResponseEntity containing a PaginatedResponseDTO with matching cocktails.
      * @throws CustomException if no cocktails are found or if the ingredients list is empty.
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/ingredients/partial")
     public ResponseEntity<PaginatedResponseDTO<CocktailDTO>> searchWithPartialIngredients(
             @RequestParam List<String> ingredients,
