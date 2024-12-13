@@ -21,11 +21,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // Apply CORS configuration
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(HttpMethod.GET, "/api/cocktails/**").permitAll()    // Allow only GET requests for cocktails
-                        .requestMatchers("/csrf").denyAll()   // Block the /csrf endpoint
-                        .anyRequest().denyAll()              // Deny all other requests
+                        .requestMatchers(HttpMethod.GET, "/api/cocktails/**").permitAll()   
+                        .requestMatchers("/csrf").denyAll()  
+                        .anyRequest().denyAll()             
                 );
 
         return http.build();
@@ -34,12 +34,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000/","https://MixItRight.com"));  // Allow only your website's domain
-        configuration.setAllowedMethods(Arrays.asList("GET"));  // Allow only GET requests
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));  // Allow specific headers if needed
+        configuration.setAllowedOrigins(List.of("http://localhost:3000/","https://MixItRight.com", "https://mixitright.vercel.app/"));  
+        configuration.setAllowedMethods(Arrays.asList("GET"));  
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); 
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);  // Apply CORS settings to all endpoints
+        source.registerCorsConfiguration("/**", configuration);  
         return source;
     }
 }
