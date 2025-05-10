@@ -34,7 +34,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000/","https://MixItRight.com", "https://mixitright.vercel.app/"));  
+        configuration.setAllowedOrigins(List.of("http://localhost:3000/","https://mixitright.se/", "https://mixitright.vercel.app/"));  
         configuration.setAllowedMethods(Arrays.asList("GET"));  
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); 
 
